@@ -1,0 +1,43 @@
+.define
+	.int number 20
+	.string title "TITULO"
+.code
+main:
+	loadc t0 5 -- r0=5
+	loadc t1 2 -- r1=2
+	add t2 t0 t1 -- r2=r0+r1
+
+	-- Print to terminal
+	load a0 t0
+	printint -- Print int
+	printnl -- Print new line
+
+	load a0 t1
+	printint
+	printnl
+
+	load a0 t2
+	printnl
+	printint
+
+	-- Print to window
+	-- a0: char
+	-- a1: pos
+	-- a2: text color
+	-- a3: background color
+	loadc a0 'O'
+	loadc a1 0
+	loadc a2 'g'
+	loadc a3 'y'
+	write
+
+-- Colors
+-- 'k' - Black
+-- 'r' - Red
+-- 'g' - Green
+-- 'y' - Yellow
+-- 'b' - Blue
+-- 'm' - Magenta
+-- 'c' - Cyan
+-- 'w' - White
+

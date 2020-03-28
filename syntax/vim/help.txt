@@ -1,0 +1,8 @@
+copy basm.vim to ~/.vim/syntax/
+
+add this line to your vimrc:
+
+augroup twig_ft
+  au!
+  autocmd BufNewFile,BufRead *.basm   set syntax=basm
+augroup END
