@@ -12,7 +12,7 @@ LIB    = lib/
 OBJ    = obj/
 
 # Files
-FILES = main shared parser assembler 
+FILES = main
 
 SOURCES=$(patsubst %, ${SRC}%.cpp, ${FILES})
 
@@ -22,7 +22,7 @@ OBJECTS=$(patsubst %, ${OBJ}%.o, ${FILES})
 
 DEPENDENCIES=${LIB}defines.h
 
-EXECUTABLE=${BIN}assembler
+EXECUTABLE=${BIN}simulator
 
 # Flags
 FLAGS= -Wall -I${LIB} -std=c++11
