@@ -12,7 +12,7 @@ LIB    = lib/
 OBJ    = obj/
 
 # Files
-FILES = main
+FILES = main simulator terminal window topbar colorManager
 
 SOURCES=$(patsubst %, ${SRC}%.cpp, ${FILES})
 
@@ -25,7 +25,7 @@ DEPENDENCIES=${LIB}defines.h
 EXECUTABLE=${BIN}simulator
 
 # Flags
-FLAGS= -Wall -I${LIB} -std=c++11
+FLAGS= -Wall -I${LIB} -std=c++11 -lcurses
 
 # Targets
 ${EXECUTABLE}: ${OBJECTS} ${DEPENDENCIES}

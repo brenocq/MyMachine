@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "defines.h"
-//#include "simulator.h"
+#include "simulator.h"
 
 using namespace std;
 
@@ -31,10 +31,10 @@ int main(int argc, char *argv[])
 	}
 
 	// Simulator
-	//Simulator *simulator = new Simulator(inName);
-	//simulator->run();
-	//
-	//delete(simulator);
+	Simulator *simulator = new Simulator(inName);
+	simulator->run();
+	
+	delete(simulator);
 
     return 0;
 }
