@@ -6,13 +6,14 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <curses.h>
+#include "colorManager.h"
 
 using namespace std;
 
 struct Pixel{
 	char ch;
-	int textColor;
-	int bgColor;
+	int pairFgBg;
 };
 
 class Window
@@ -21,8 +22,15 @@ public:
 	Window();
 	~Window();
 
-	void run(void);
+	void display(void);
+	void setWindow(WINDOW *_win);
+	void write(int position, int character, int fgColor, int bgColor);
 private:
 	vector<Pixel> pixels;
+
+	WINDOW *win;
+	int maxX, maxY;
+
+	ColorManager *cm;
 };
 #endif// WINDOW_H

@@ -1,5 +1,5 @@
-#ifndef TOPBAR_H
-#define TOPBAR_H
+#ifndef CODE_H
+#define CODE_H
 
 #include <stdlib.h>
 #include <iostream>
@@ -13,21 +13,29 @@
 
 using namespace std;
 
-class Topbar
+class Code
 {
 public:
-	Topbar();
-	~Topbar();
+	Code();
+	~Code();
 
 	void display(void);
 	void setWindow(WINDOW *_win);
 	void setRegisters(vector<int> *_registers);
+	void setLines(vector<string> *_lines);
 private:
+	void getLineArgs(Command command, string lineBin, string &arg1, string &arg2, string &arg3);
+
+	vector<string> buffer;
+
+	ColorManager *cm;
 	WINDOW *win;
 	int maxX, maxY;
-	vector<int> *registers;
-
 	Shared *shared;
-	ColorManager *cm;
+
+	// Input file lines
+	vector<string> *lines;
+	// Registers
+	vector<int> *registers;
 };
-#endif// TOPBAR_H
+#endif// CODE_H

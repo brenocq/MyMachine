@@ -12,15 +12,18 @@ LIB    = lib/
 OBJ    = obj/
 
 # Files
-FILES = main simulator terminal window topbar colorManager
+FILES = main simulator terminal window topbar colorManager code
 
 SOURCES=$(patsubst %, ${SRC}%.cpp, ${FILES})
+SOURCES+=../assembler/src/shared.cpp
 
 HEADERS=$(patsubst %, ${LIB}%.h, ${FILES})
+HEADERS+=../assembler/lib/shared.h
 
 OBJECTS=$(patsubst %, ${OBJ}%.o, ${FILES})
+OBJECTS+=../assembler/obj/shared.o
 
-DEPENDENCIES=${LIB}defines.h
+DEPENDENCIES=../assembler/lib/defines.h
 
 EXECUTABLE=${BIN}simulator
 

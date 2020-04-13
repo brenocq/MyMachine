@@ -91,8 +91,6 @@ void Parser::getRegisters(string line, int &rs1, int &rs2, int &rt)
 			if(words[1] == reg.first)
 			{
 				rt = reg.second;
-				if(words.size()==3)
-					rs1 = reg.second;
 			}
 
 	// Second register
@@ -101,7 +99,10 @@ void Parser::getRegisters(string line, int &rs1, int &rs2, int &rt)
 			if(words[2] == reg.first)
 			{
 				if(words.size()==3)
+				{
+					rs1 = reg.second;
 					rs2 = reg.second;
+				}
 				if(words.size()==4)
 					rs1 = reg.second;
 			}

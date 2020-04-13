@@ -155,7 +155,7 @@ string Assembler::writeCInstruction(Command command, string line)
 	if(isNumber)
 	{
 		// Write no file
-		out << command.binary + rs.binary + rt.binary + toBinary(constant);
+		out << command.binary + rs.binary + rt.binary + toBinary(constant)+"\n";
 		lineCounter++;
 
 		return ("C -> " + command.binary + " " + rs.binary + " " + rt.binary + " " + toBinary(constant));

@@ -48,8 +48,9 @@ void Shared::initRegisters(void)
 	registers.push_back({S6_STR,S6_CODE,S6});
 	registers.push_back({S7_STR,S7_CODE,S7});
 
-	registers.push_back({ZERO_STR,ZERO_CODE,ZERO});
+	registers.push_back({PC_STR,PC_CODE,PC});
 	registers.push_back({RA_STR,RA_CODE,RA});
+	registers.push_back({ZERO_STR,ZERO_CODE,ZERO});
 }
 
 void Shared::initCommands(void)
@@ -131,6 +132,17 @@ Command Shared::getCommand(string str)
 	return {"", NO_CODE, "", ' '};
 }
 
+Command Shared::getCommandByOpCode(string opCode)
+{
+	for(auto command : commands)
+	{
+		if(command.binary == opCode)
+			return command;
+	}
+	return {"", NO_CODE, "", ' '};
+}
+
+
 Register Shared::getRegister(int code)
 {
 	for(auto reg : registers)
@@ -170,4 +182,45 @@ Constant Shared::getConstant(string name)
 			return constant;
 	}
 	return {"", -1};
+}
+
+void Shared::getRegistersByBin(string lineBin, Register &rs1, Register &rs2, Register &rt)
+{
+	string rs1Bin = lineBin.substr(6,5);
+	string rs2Bin = lineBin.substr(11,5);
+	string rtBin = lineBin.substr(16,5);
+
+	rs1 = {"", NO_CODE, ""};
+	rs2 = {"", NO_CODE, ""};
+	rt = {"", NO_CODE, ""};
+	for(auto reg : registers)
+	{
+		if(rs1Bin == reg.binary)
+			rs1 = reg;
+		if(rs2Bin == reg.binary)
+			rs2 = reg;
+		if(rtBin == reg.binary)
+			rt = reg;
+	}
+}
+
+void Shared::getConstantByBin(string lineBin, Register &rs, Register &rt, int &constant, bool &isNumber)
+{
+	string rsBin = lineBin.substr(6,5);
+	string rtBin = lineBin.substr(11,5);
+	string constantBin = lineBin.substr(16,16);
+
+	rs = {"", NO_CODE, ""};
+	rt = {"", NO_CODE, ""};
+
+	for(auto reg : registers)
+	{
+		if(rsBin == reg.binary)
+			rs = reg;
+		if(rtBin == reg.binary)
+			rt = reg;
+	}
+
+	constant = stoi(constantBin, nullptr, 2);
+	isNumber = true;
 }

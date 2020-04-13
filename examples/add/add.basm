@@ -1,12 +1,9 @@
 .define
-	.int number 20
-	.string title "TITULO"
 .code
 main:
 	loadc t0 5 -- t0=5
 	loadc t1 2 -- t1=2
 	add t2 t0 t1 -- t2=t0+t1
-	add t2 t1    -- t2=t2+t0
 
 	-- Print to terminal
 	move a0 t0
@@ -18,23 +15,52 @@ main:
 	printnl
 
 	move a0 t2
-	printnl
 	printint
+	printnl
 
 	-- Print to window
-	-- a0: char
-	-- a1: pos
+	-- a0: pos
+	-- a1: char
 	-- a2: text color
 	-- a3: background color
-	loadc a0 'O'
-	loadc a1 0
+
+	loadc a0 0
+	move a1 t0 
+	addc a1 48 --int to char
 	loadc a2 'g'
-	loadc a3 'y'
+	loadc a3 'k'
+	write
+
+	loadc a0 1
+	loadc a1 '+'
+	loadc a2 'p'
+	loadc a3 'k'
+	write
+
+	loadc a0 2
+	move a1 t1 
+	addc a1 48 --int to char
+	loadc a2 'g'
+	loadc a3 'k'
+	write
+
+	loadc a0 3
+	loadc a1 '='
+	loadc a2 'p'
+	loadc a3 'k'
+	write
+
+	loadc a0 4
+	move a1 t2 
+	addc a1 48 --int to char
+	loadc a2 'g'
+	loadc a3 'k'
 	write
 
 -- Colors
 -- 'k' - Black
 -- 'r' - Red
+-- 'p' - Pink
 -- 'g' - Green
 -- 'y' - Yellow
 -- 'b' - Blue

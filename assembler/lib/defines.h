@@ -61,6 +61,8 @@
 #define STRING_CODE				213
 
 //-- REGISTER CODES --//
+#define QTY_REG					27
+
 #define T0_CODE					0
 #define T1_CODE 				1
 #define T2_CODE 				2
@@ -89,8 +91,9 @@
 #define S6_CODE 				22
 #define S7_CODE 				23
 
-#define ZERO_CODE				24
+#define PC_CODE					24
 #define RA_CODE					25
+#define ZERO_CODE				26
 
 //------------------------------------------------// 
 //---------- Assembly op codes (binary) ----------// 
@@ -190,6 +193,7 @@
 //-- System (Begin with 11) --//
 #define ZERO 			"11000"
 #define RA 				"11001"
+#define PC 				"11010"
 #define NO_REG			"11111"
 
 
@@ -301,6 +305,7 @@
 
 #define ZERO_STR 				"zero"
 #define RA_STR  				"ra"
+#define PC_STR  				"pc"
 
 /*  Modelo de memoria
 

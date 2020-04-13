@@ -5,7 +5,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <vector>
+#include <deque>
+#include <curses.h>
+#include "colorManager.h"
 
 using namespace std;
 
@@ -15,8 +17,19 @@ public:
 	Terminal();
 	~Terminal();
 
-	void run(void);
+	void display(void);
+	void setWindow(WINDOW *_win);
+
+	void printint(int constant);
+	void printchar(char constant);
+	void printnl();
 private:
-	vector<string> buffer;
+	void cleanTerminal();
+	deque<string> buffer;
+
+	WINDOW *win;
+	int maxX, maxY;
+
+	ColorManager *cm;
 };
 #endif// TERMINAL_H

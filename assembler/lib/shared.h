@@ -40,11 +40,14 @@ public:
 
 	static Command getCommand(int code);
 	static Command getCommand(string str);
+	static Command getCommandByOpCode(string opCode);
 	static Register getRegister(int code);
 	static Register getRegister(string str);
 	static Label getLabel(string name);
 	static Constant getConstant(string name);
 
+	static void getRegistersByBin(string lineBin, Register &rs1, Register &rs2, Register &rt);
+	static void getConstantByBin(string lineBin, Register &rs, Register &rt, int &constant, bool &isNumber);
 private:
 	static void initCommands(void);
 	static void initRegisters(void);

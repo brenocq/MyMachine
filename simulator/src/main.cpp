@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "defines.h"
+#include "../../assembler/lib/defines.h"
 #include "simulator.h"
 
 using namespace std;
