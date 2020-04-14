@@ -1,11 +1,12 @@
 .define
 .code
 main:
+	---------------- Add numbers ----------------
 	loadc t0 5 -- t0=5
 	loadc t1 2 -- t1=2
 	add t2 t0 t1 -- t2=t0+t1
 
-	-- Print to terminal
+	------------- Print to terminal -------------
 	move a0 t0
 	printint -- Print int
 	printnl -- Print new line
@@ -18,12 +19,11 @@ main:
 	printint
 	printnl
 
-	-- Print to window
+	--------------- Print to window -------------
 	-- a0: pos
 	-- a1: char
 	-- a2: text color
 	-- a3: background color
-
 	loadc a0 0
 	move a1 t0 
 	addc a1 48 --int to char
@@ -56,6 +56,8 @@ main:
 	loadc a2 'g'
 	loadc a3 'k'
 	write
+
+	finish
 
 -- Colors
 -- 'k' - Black

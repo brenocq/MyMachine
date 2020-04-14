@@ -1,11 +1,11 @@
 #include "assembler.h"
 
 
-Assembler::Assembler(string inName, string outName):
+Assembler::Assembler(string _inName, string _outName):
 	lineCounter(0)
 {
-	in.open(inName);
-	out.open(outName);
+	inName = _inName;
+	outName = _outName;
 
 	parser = new Parser();	
 	shared = new Shared();
@@ -15,13 +15,17 @@ Assembler::~Assembler()
 {
 	delete(parser);
 	delete(shared);
-	in.close();
-	out.close();
 }
 
 void Assembler::run(void)
 {
 	cout << "\n\n" << BOLDWHITE << "----- Your code -----" << RESET << "\n\n";
+
+	createLabels();
+	createDefines();
+
+	in.open(inName);
+	out.open(outName);
 
 	string line;
 	while(getline(in, line))
@@ -77,6 +81,94 @@ void Assembler::run(void)
 			cout<<response<<endl;
 		}
 	}
+	in.close();
+	out.close();
+}
+
+
+void Assembler::createLabels()
+{
+	// TODO ignore inside .define
+	in.open(inName);
+	out.open(outName);
+
+	string line;
+	int lineNumber = 0;
+	while(getline(in, line))
+	{
+		parser->removeComments(line);
+		int code = parser->getCode(line);
+		// Check commands
+		Command command = shared->getCommand(code);
+
+		string labelName = "";
+		Label label = {"",-1};
+		switch(code)
+		{
+			case NO_CODE:
+				break;
+			case LABEL_CODE:
+				labelName = parser->getLabelName(line);
+				if(labelName!="")
+				{
+					label = {labelName,lineNumber};
+					shared->insertLabel(label);
+				}
+				break;
+			default:
+				if(command.instructionType!=' ')
+				{
+					lineNumber++;
+				}
+				break;
+		}
+	}
+	in.close();
+	out.close();
+}
+
+void Assembler::createDefines()
+{
+	// TODO ignore inside .code
+	in.open(inName);
+	out.open(outName);
+
+	string line;
+	int memoryNumber = 0;
+	while(getline(in, line))
+	{
+		parser->removeComments(line);
+		int code = parser->getCode(line);
+
+		if(code==DEFINE_CODE)
+		{
+			int defineCode = parser->getDefineCode(line);
+			string defineName = parser->getDefineName(line);
+			switch(defineCode)
+			{
+				case BOOL_CODE:
+					shared->insertDefine({defineName, memoryNumber});
+					memoryNumber++;
+					break;
+				case CHAR_CODE:
+					shared->insertDefine({defineName, memoryNumber});
+					memoryNumber++;
+					break;
+				case INT_CODE:
+					shared->insertDefine({defineName, memoryNumber});
+					memoryNumber++;
+					break;
+				case STRING_CODE:
+					shared->insertDefine({defineName, memoryNumber});
+					string s;
+					parser->getDefine(line, s);
+					memoryNumber+=s.size()+1;
+					break;
+			}
+		}
+	}
+	in.close();
+	out.close();
 }
 
 void Assembler::checkError(int code, string line)
@@ -106,7 +198,7 @@ string Assembler::writeDInstruction(Command command, string line)
 	{
 		string name = "";
 		int value = 0;
-		parser->getDefine(line, name, value);
+		//parser->getDefine(line, name, value);
 		//constants.push_back({name, value});
 
 		//response = "D -> Added to constants";
@@ -120,14 +212,10 @@ string Assembler::writeRInstruction(Command command, string line)
 	//OpCode rs1   rs2	 rt    sa    fun
 	//000000 00000 00000 00000 00000 000000
 	
-	int rs1_code = -1;
-	int rs2_code = -1;
-	int rt_code  = -1;
-	parser->getRegisters(line, rs1_code, rs2_code, rt_code);
-
-	Register rs1 = shared->getRegister(rs1_code);
-	Register rs2 = shared->getRegister(rs2_code);
-	Register rt  = shared->getRegister(rt_code);
+	Register rs1;
+	Register rs2;
+	Register rt;
+	parser->getRegisters(line, rs1, rs2, rt);
 
 	// Write no file
 	out << command.binary + rs1.binary + rs2.binary + rt.binary + "00000000000\n";
@@ -142,29 +230,38 @@ string Assembler::writeCInstruction(Command command, string line)
 	//OpCode rs    rt    constant 
 	//000000 00000 00000 0000000000000000
 	
-	int rs_code = -1;
-	int rt_code  = -1;
-	parser->getRegisters(line, rs_code, rt_code);
+	Register rs;
+	Register rt;
+	parser->getRegisters(line, rs, rt);
 
-	Register rs = shared->getRegister(rs_code);
-	Register rt  = shared->getRegister(rt_code);
 	int constant = 0;
-	bool isNumber = false;
-	parser->getConstant(line, constant, isNumber);
+	parser->getConstant(line, constant);
 
-	if(isNumber)
-	{
-		// Write no file
-		out << command.binary + rs.binary + rt.binary + toBinary(constant)+"\n";
-		lineCounter++;
+	// Write no file
+	out << command.binary + rs.binary + rt.binary + toBinary(constant)+"\n";
+	lineCounter++;
 
-		return ("C -> " + command.binary + " " + rs.binary + " " + rt.binary + " " + toBinary(constant));
-	}
-	return "TODO: Constant as string";
+	return ("C -> " + command.binary + " " + rs.binary + " " + rt.binary + " " + toBinary(constant));
 }
 
 string Assembler::writeJInstruction(Command command, string line)
 {
+	lineCounter++;
+
+	Label label {"", -1};
+	Register rs1 = {"", NO_CODE, ""};
+	Register rs2 = {"", NO_CODE, ""};
+	parser->getJumpArguments(line, rs1, rs2, label);
+	if(label.lineNumber!=-1)
+	{
+		out << command.binary + rs1.binary + rs2.binary + toBinary(label.lineNumber)+"\n";
+		return "J -> " + command.binary + " " + rs1.binary + " " + rs2.binary + " " + toBinary(label.lineNumber);
+	}
+	else
+	{
+		out << command.binary + "00000000000000000000000000\n";
+		return "J -> " + command.binary + " 00000000000000000000000000";
+	}
 	return "";
 }
 

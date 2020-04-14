@@ -14,13 +14,15 @@ using namespace std;
 class Assembler
 {
 public:
-	Assembler(string inName, string outName);
+	Assembler(string _inName, string _outName);
 	~Assembler();
 
 	void run(void);
 private:
 	void checkError(int code, string line);
 	void checkLabel(int code, string line);
+	void createLabels();
+	void createDefines();
 
 	string writeDInstruction(Command command, string line);
 	string writeRInstruction(Command command, string line);
@@ -37,6 +39,8 @@ private:
 	Shared *shared;
 
 	// Input/Output files
+	string inName;
+	string outName;
 	ifstream in;
 	ofstream out;
 

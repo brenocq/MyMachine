@@ -15,8 +15,12 @@
 #define MULC_CODE               6
 #define DIV_CODE                7
 #define DIVC_CODE               8
-#define SHIFT_LEFT_CODE         9
-#define SHIFT_RIGHT_CODE        10
+#define MOD_CODE                9
+#define MODC_CODE               10
+#define SHIFT_LEFT_CODE         11
+#define SHIFT_LEFTC_CODE        12
+#define SHIFT_RIGHT_CODE        13
+#define SHIFT_RIGHTC_CODE       14
 
 #define LOAD_CODE               20
 #define LOADC_CODE              21
@@ -38,20 +42,30 @@
 #define JGE_CODE                76
 #define JLT_CODE                77
 #define JLE_CODE                78
+#define JL_CODE               	79 
+#define JEQL_CODE               80
+#define JNEL_CODE               81
+#define JEZL_CODE               82
+#define JNZL_CODE               83
+#define JGTL_CODE               84
+#define JGEL_CODE               85
+#define JLTL_CODE               86
+#define JLEL_CODE               87
 
 #define PUSH_CODE               90
 #define POP_CODE                91
 
-#define PRINTC_CODE             100
-#define PRINTSTR_CODE           101
+#define PRINTBOOL_CODE          100
+#define PRINTCHAR_CODE          101
 #define PRINTINT_CODE           102
-#define PRINTNL_CODE            103
+#define PRINTSTR_CODE           103
+#define PRINTNL_CODE            104
 
 #define WRITE_CODE				150
 #define READ_CODE				151
 #define INPUT_CODE				152
 
-#define DEFINES_CODE			200		
+#define DEFINE_CODE				200		
 #define CODE_CODE				201
 #define LABEL_CODE				202
 
@@ -60,8 +74,11 @@
 #define INT_CODE 				212
 #define STRING_CODE				213
 
+#define FINISH_CODE 			220
+#define BREAKP_CODE				221
+
 //-- REGISTER CODES --//
-#define QTY_REG					27
+#define QTY_REG					29
 
 #define T0_CODE					0
 #define T1_CODE 				1
@@ -94,31 +111,35 @@
 #define PC_CODE					24
 #define RA_CODE					25
 #define ZERO_CODE				26
+#define TIME_CODE				27
+#define RAND_CODE				28
 
 //------------------------------------------------// 
 //---------- Assembly op codes (binary) ----------// 
 //------------------------------------------------// 
 
-//----- Data Manipulation Instructions -----//
-#define LOAD            "110000"
-#define LOADC           "110010"
-#define STORE           "110011"
-#define STOREC          "110100"
-#define MOVE            "110101"
+//----- Data Manipulation Instructions (Begin with "101") -----//
+#define LOAD            "101000"
+#define LOADC           "101001"
+#define STORE           "101010"
+#define STOREC          "101011"
+#define MOVE            "101100"
 
 //----- Peripheric Instructions -----//
 //--- FUNCTIONS ---//
-//-- Memory Instructions (Begin with "000")--//
-#define PUSH            "000001"
-#define POP             "000010"
+//-- Memory Instructions (Begin with "0000")--//
+#define PUSH            "000000"
+#define POP             "000001"
 
-//-- Logic Instructions (Begin with "001") --//
+//-- Logic/Shift Instructions (Begin with "001") --//
 #define AND            	"001000"
 #define OR             	"001001"
 #define XOR            	"001010"
 #define NOT            	"001011"
 #define SHIFTL          "001100"
-#define SHIFTR          "001101"
+#define SHIFTLC         "001101"
+#define SHIFTR          "001110"
+#define SHIFTRC         "001111"
 
 //-- Aritmethic Instructions (Begin with "010") --//
 #define ADD             "010000"
@@ -129,22 +150,25 @@
 #define MULC            "010101"
 #define DIV             "010110"
 #define DIVC            "010111"
+//-- Aritmethic Instructions (Begin with "0000") --//
+#define MOD             "000010"
+#define MODC            "000011"
 
-//-- Control Instructions (Begin with "011") --//
-#define NOP             "011000"
-#define HALT            "011001"
-#define BREAKP			"011010"
+//-- Control Instructions (Begin with "0110") --//
+#define FINISH          "011000"
+#define BREAKP			"011001"
 
 //-- Terminal Instructions (Begin with "100") --//
-#define PRINTC          "100001"
+#define PRINTBOOL       "100000"
+#define PRINTCHAR       "100001"
 #define PRINTINT        "100010"
 #define PRINTSTR        "100011"
 #define PRINTNL	        "100100"
 
-//-- Window Instructions (Begin with "101") --//
-#define WRITE	        "101000"
-#define READ          	"101001"
-#define INPUT          	"101010"
+//-- Window Instructions (Begin with "1011") --//
+#define WRITE	        "101101"
+#define READ          	"101110"
+#define INPUT          	"101111"
 
 //-- Jump (Begin with "11") --//
 #define J             	"110000"
@@ -156,6 +180,18 @@
 #define JGE            	"110111"
 #define JLT            	"111000"
 #define JLE             "111001"
+#define JL             	"111010"
+#define JEQL           	"111011"
+#define JNEL            "111100"
+#define JEZL            "111101"
+#define JNZL           	"111110"
+#define JGTL            "111111"
+//-- Jump (Begin with "0001") --//
+#define JGEL           	"000100"
+#define JLTL           	"000101"
+#define JLEL            "000110"
+//-- Push define memory --//
+#define PUSHD           "000111"
 
 //--- REGISTERS ---//
 //-- Temporary (Begin with 00) --//
@@ -194,16 +230,16 @@
 #define ZERO 			"11000"
 #define RA 				"11001"
 #define PC 				"11010"
+#define TIME 			"11011"
+#define RAND			"11100"
 #define NO_REG			"11111"
-
-
 
 //---------------------------------------------//
 //--------------- Basm strings ----------------//
 //---------------------------------------------//
 
 //----------------- Defines -------------------//
-#define DEFINES_STR				".define"
+#define DEFINE_STR				".define"
 #define CODE_STR				".code"
 #define BOOL_STR 				".bool"
 #define CHAR_STR 				".char"
@@ -238,6 +274,10 @@
 #define DIV_STR                 "div"
 #define DIVC_STR                "divc"
 
+//-- MOD --//
+#define MOD_STR                 "mod"
+#define MODC_STR                "modc"
+
 //-- LOGICAL --//
 #define AND_STR                 "and"
 #define OR_STR                  "or"
@@ -246,7 +286,9 @@
     
 //-- SHIFT --//
 #define SHIFT_LEFT_STR       	"shiftl"
+#define SHIFT_LEFTC_STR       	"shiftlc"
 #define SHIFT_RIGHT_STR 		"shiftr"
+#define SHIFT_RIGHTC_STR 		"shiftrc"
 
 //-- JUMP --//
 #define J_STR  	                "j"
@@ -259,12 +301,24 @@
 #define JLT_STR                 "jlt"
 #define JLE_STR                 "jle"
 
+//-- JUMP AND LINK --//
+#define JL_STR  	             "jl"
+#define JEQL_STR                 "jeql"
+#define JNEL_STR                 "jnel"
+#define JEZL_STR                 "jezl"
+#define JNZL_STR                 "jnzl"
+#define JGTL_STR                 "jgtl"
+#define JGEL_STR                 "jgel"
+#define JLTL_STR                 "jltl"
+#define JLEL_STR                 "jlel"
+
 //-- PUSH & POP --//
 #define PUSH_STR                "push"
 #define POP_STR                 "pop"
 
 //-- TERMINAL --//
-#define PRINTC_STR 				"printc"
+#define PRINTBOOL_STR 			"printbool"
+#define PRINTCHAR_STR 			"printchar"
 #define PRINTINT_STR            "printint"
 #define PRINTSTR_STR            "printstr"
 #define PRINTNL_STR             "printnl"
@@ -273,6 +327,10 @@
 #define WRITE_STR            	"write"
 #define READ_STR             	"read"
 #define INPUT_STR             	"input"
+
+//-- CONTROL --//
+#define FINISH_STR            	"finish"
+#define BREAKP_STR             	"breakp"
 
 //-- REGISTERS STRINGS --//
 #define T0_STR 					"t0"
@@ -306,6 +364,8 @@
 #define ZERO_STR 				"zero"
 #define RA_STR  				"ra"
 #define PC_STR  				"pc"
+#define TIME_STR  				"time"
+#define RAND_STR  				"rand"
 
 /*  Modelo de memoria
 

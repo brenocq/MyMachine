@@ -25,6 +25,7 @@ public:
 	void display(void);
 	void setWindow(WINDOW *_win);
 	void write(int position, int character, int fgColor, int bgColor);
+	void read(int position, int &character, int &fgColor, int &bgColor);
 private:
 	vector<Pixel> pixels;
 

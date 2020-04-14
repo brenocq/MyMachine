@@ -25,6 +25,9 @@ syntax match basmMainLabel "\.code"
 " Registers
 syntax keyword basmRegister zero
 syntax keyword basmRegister ra
+syntax keyword basmRegister pc
+syntax keyword basmRegister time
+syntax keyword basmRegister rand
 
 syntax keyword basmRegister t0
 syntax keyword basmRegister t1
@@ -65,8 +68,9 @@ syntax keyword basmInstruction add addc
 syntax keyword basmInstruction sub subc
 syntax keyword basmInstruction mul mulc
 syntax keyword basmInstruction div divc
-syntax keyword basmInstruction shiftl
-syntax keyword basmInstruction shiftr
+syntax keyword basmInstruction mod modc
+syntax keyword basmInstruction shiftl shiftlc
+syntax keyword basmInstruction shiftr shiftrc
 
 " Logical Instructions
 syntax keyword basmInstruction and
@@ -74,28 +78,27 @@ syntax keyword basmInstruction or
 syntax keyword basmInstruction xor
 syntax keyword basmInstruction not
 
-" Jump Instructions (save ra)
-syntax keyword basmInstruction j
-syntax keyword basmInstruction jeq
-syntax keyword basmInstruction jne
-syntax keyword basmInstruction jez
-syntax keyword basmInstruction bnz
-syntax keyword basmInstruction jgt
-syntax keyword basmInstruction jge
-syntax keyword basmInstruction jlt
-syntax keyword basmInstruction jle
-syntax keyword basmInstruction jr
+" Jump Instructions
+syntax keyword basmInstructionJ j
+syntax keyword basmInstructionJ jeq
+syntax keyword basmInstructionJ jne
+syntax keyword basmInstructionJ jez
+syntax keyword basmInstructionJ jnz
+syntax keyword basmInstructionJ jgt
+syntax keyword basmInstructionJ jge
+syntax keyword basmInstructionJ jlt
+syntax keyword basmInstructionJ jle
 
-" Branch Instructions (dont save ra)
-syntax keyword basmInstruction b
-syntax keyword basmInstruction beq
-syntax keyword basmInstruction bne
-syntax keyword basmInstruction bez
-syntax keyword basmInstruction bnz
-syntax keyword basmInstruction bgt
-syntax keyword basmInstruction bge
-syntax keyword basmInstruction blt
-syntax keyword basmInstruction ble
+" Jump Instructions
+syntax keyword basmInstructionJ jl
+syntax keyword basmInstructionJ jeql
+syntax keyword basmInstructionJ jnel
+syntax keyword basmInstructionJ jezl
+syntax keyword basmInstructionJ jnzl
+syntax keyword basmInstructionJ jgtl
+syntax keyword basmInstructionJ jgel
+syntax keyword basmInstructionJ jltl
+syntax keyword basmInstructionJ jlel
 
 " Memory Access Instructions
 syntax keyword basmInstruction load loadc
@@ -109,13 +112,12 @@ syntax keyword basmInstruction push
 syntax keyword basmInstruction pop
 
 " Exception and Interrupt Instructions
-syntax keyword basmInstruction halt
-syntax keyword basmInstruction breakp
-syntax keyword basmInstruction nop
+syntax keyword basmInstructionM finish
+syntax keyword basmInstructionM breakp
 
 " Terminal Instructions
 syntax keyword basmInstructionT printbool
-syntax keyword basmInstructionT printc
+syntax keyword basmInstructionT printchar
 syntax keyword basmInstructionT printint
 syntax keyword basmInstructionT printstr
 syntax keyword basmInstructionT printnl
@@ -136,6 +138,8 @@ hi def link basmDirective      Type
 hi def link basmInstruction    Statement
 hi def link basmInstructionT   StatementT
 hi def link basmInstructionW   StatementW
+hi def link basmInstructionJ   StatementJ
+hi def link basmInstructionM   StatementM
 
 hi Comment ctermfg    = Gray
 hi Label ctermfg      = LightCyan 
@@ -146,6 +150,8 @@ hi Char ctermfg       = White
 hi Statement ctermfg  = Magenta
 hi StatementT ctermfg = LightMagenta
 hi StatementW ctermfg =	LightMagenta 
+hi StatementJ ctermfg =	Blue 
+hi StatementM ctermfg =	Blue 
 
 let b:current_syntax = "basm"
 

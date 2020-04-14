@@ -1,0 +1,16 @@
+.define
+.code
+main:
+	loadc t1 1
+	push t1
+	loadc t1 2
+	pop t0
+
+	move a0 t0
+	printint
+	printnl
+
+	move a0 t1
+	printint
+
+	finish

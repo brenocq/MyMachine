@@ -21,155 +21,161 @@ int Parser::getCode(string line)
 	if(isLabel(line))
 		return LABEL_CODE;
 
+	if(isDefine(line))
+		return DEFINE_CODE;
+
 	Command command = shared->getCommand(words[0]);
 
 	if(command.code == NO_CODE)
 		return ERROR_CODE;
-
+	
 	return command.code;
 }
 
-void Parser::getDefine(string line, string &name, int &value)
+int Parser::getDefineCode(string line)
+{
+	removeComments(line);
+	vector<string> words = splitLine(line);
+	if(words.size()<2)
+		return NO_CODE;
+
+	if(words[1]==BOOL_STR)
+		return BOOL_CODE;
+	if(words[1]==CHAR_STR)
+		return CHAR_CODE;
+	if(words[1]==INT_STR)
+		return INT_CODE;
+	if(words[1]==STRING_STR)
+		return STRING_CODE;
+}
+
+string Parser::getDefineName(string line)
+{
+	removeComments(line);
+	vector<string> words = splitLine(line);
+	if(words.size()==0)
+		return "";
+
+	return words[0];
+}
+
+string Parser::getLabelName(string line)
+{
+	removeComments(line);
+	vector<string> words = splitLine(line);
+	if(isLabel(line) && words.size()==1)
+	{
+		return words[0].substr(0,words[0].size()-1);
+	}
+	return "";
+}
+void Parser::getDefine(string line, string &str)
+{
+	int posInit = line.find("\"");
+
+
+	for(int i=0;i<line.length();i++)
+		if(line[i]=='"')
+		{
+			line[i]=' ';
+			break;
+		}
+	int posEnd = line.find("\"");
+	str = line.substr(posInit+1,posEnd-posInit-1);
+}
+
+void Parser::getDefine(string line, int &integer)
 {
 	vector<string> words = splitLine(line);
-	name = words[1];
+	integer = stoi(words[2]);
+}
 
-	string constant = words[2];	
-	if(constant[0]=='\'')
+void Parser::getDefine(string line, char &character)
+{
+	vector<string> words = splitLine(line);
+
+	if(words[2].size()==1)
 	{
-		value = int(constant[1]);
+		character=' ';
 		return;
 	}
-	if(constant[0]=='\"')
+	character = words[2][1];
+}
+
+void Parser::getDefine(string line, bool &boolean)
+{
+	vector<string> words = splitLine(line);
+	boolean = false;
+	if(words[2]=="T")
+		boolean = true;
+}
+
+void Parser::getRegisters(string line, Register &rs1, Register &rs2, Register &rt)
+{
+	vector<string> words = splitLine(line);
+	rs1 = {"",NO_CODE,"00000"};
+	rs2 = {"",NO_CODE,"00000"};
+	rt = {"",NO_CODE,"00000"};
+
+	// First register
+	switch(words.size())
 	{
-		value = -1;
-		return;// TODO
+		case 1:
+			return;
+		case 2:
+			rt  = shared->getRegister(words[1]);
+			rs1 = shared->getRegister(words[1]);
+			rs2 = shared->getRegister(words[1]);
+			return;
+
+		case 3:
+			rt  = shared->getRegister(words[1]);
+			rs1 = shared->getRegister(words[2]);
+			rs2 = shared->getRegister(words[2]);
+			return;
+
+		case 4:
+			rt  = shared->getRegister(words[1]);
+			rs1 = shared->getRegister(words[2]);
+			rs2 = shared->getRegister(words[3]);
+			return;
+	}
+}
+
+void Parser::getRegisters(string line, Register &rs, Register &rt)
+{
+	vector<string> words = splitLine(line);
+
+	rs = {"",NO_CODE, "00000"};
+	rt = {"",NO_CODE, "00000"};
+
+	if(words.size()==1)
+		return;
+	if(words.size()==2)
+		return;
+	if(words.size()==3)// loadc t0 1
+	{
+		rt = shared->getRegister(words[1]);
+		rs = shared->getRegister(words[1]);
+		return;
+	}
+	if(words.size()==4)// add t0 t1 9 || loadc t0 ' '
+	{
+		if(words[words.size()-1]=="\'" && words[words.size()-2]=="\'")
+		{
+			rt = shared->getRegister(words[1]);
+			rs = shared->getRegister(words[1]);
+			return;
+		}
+		rt = shared->getRegister(words[1]);
+		rs = shared->getRegister(words[2]);
+		return;
 	}
 	
-	value = stoi(constant);
+	//return ERROR_CODE;
 }
 
-void Parser::getRegisters(string line, int &rs1, int &rs2, int &rt)
-{
-	vector<string> words = splitLine(line);
-
-	vector<pair<string, int> > registers;
-	registers.push_back({T0_STR,T0_CODE});
-	registers.push_back({T1_STR,T1_CODE});
-	registers.push_back({T2_STR,T2_CODE});
-	registers.push_back({T3_STR,T3_CODE});
-	registers.push_back({T4_STR,T4_CODE});
-	registers.push_back({T5_STR,T5_CODE});
-	registers.push_back({T6_STR,T6_CODE});
-	registers.push_back({T7_STR,T7_CODE});
-
-	registers.push_back({A0_STR,A0_CODE});
-	registers.push_back({A1_STR,A1_CODE});
-	registers.push_back({A2_STR,A2_CODE});
-	registers.push_back({A3_STR,A3_CODE});
-
-	registers.push_back({V0_STR,V0_CODE});
-	registers.push_back({V1_STR,V1_CODE});
-	registers.push_back({V2_STR,V2_CODE});
-	registers.push_back({V3_STR,V3_CODE});
-
-	registers.push_back({S0_STR,S0_CODE});
-	registers.push_back({S1_STR,S1_CODE});
-	registers.push_back({S2_STR,S2_CODE});
-	registers.push_back({S3_STR,S3_CODE});
-	registers.push_back({S4_STR,S4_CODE});
-	registers.push_back({S5_STR,S5_CODE});
-	registers.push_back({S6_STR,S6_CODE});
-	registers.push_back({S7_STR,S7_CODE});
-
-	registers.push_back({ZERO_STR,ZERO_CODE});
-	registers.push_back({RA_STR,RA_CODE});
-
-	// First register
-	if(words.size()>=2)
-		for(auto reg : registers)
-			if(words[1] == reg.first)
-			{
-				rt = reg.second;
-			}
-
-	// Second register
-	if(words.size()>=3)
-		for(auto reg : registers)
-			if(words[2] == reg.first)
-			{
-				if(words.size()==3)
-				{
-					rs1 = reg.second;
-					rs2 = reg.second;
-				}
-				if(words.size()==4)
-					rs1 = reg.second;
-			}
-
-	// Third register
-	if(words.size()==4)
-		for(auto reg : registers)
-			if(words[3] == reg.first)
-					rs2 = reg.second;
-}
-
-void Parser::getRegisters(string line, int &rs, int &rt)
-{
-	vector<string> words = splitLine(line);
-
-	vector<pair<string, int> > registers;
-	registers.push_back({T0_STR,T0_CODE});
-	registers.push_back({T1_STR,T1_CODE});
-	registers.push_back({T2_STR,T2_CODE});
-	registers.push_back({T3_STR,T3_CODE});
-	registers.push_back({T4_STR,T4_CODE});
-	registers.push_back({T5_STR,T5_CODE});
-	registers.push_back({T6_STR,T6_CODE});
-	registers.push_back({T7_STR,T7_CODE});
-
-	registers.push_back({A0_STR,A0_CODE});
-	registers.push_back({A1_STR,A1_CODE});
-	registers.push_back({A2_STR,A2_CODE});
-	registers.push_back({A3_STR,A3_CODE});
-
-	registers.push_back({V0_STR,V0_CODE});
-	registers.push_back({V1_STR,V1_CODE});
-	registers.push_back({V2_STR,V2_CODE});
-	registers.push_back({V3_STR,V3_CODE});
-
-	registers.push_back({S0_STR,S0_CODE});
-	registers.push_back({S1_STR,S1_CODE});
-	registers.push_back({S2_STR,S2_CODE});
-	registers.push_back({S3_STR,S3_CODE});
-	registers.push_back({S4_STR,S4_CODE});
-	registers.push_back({S5_STR,S5_CODE});
-	registers.push_back({S6_STR,S6_CODE});
-	registers.push_back({S7_STR,S7_CODE});
-
-	registers.push_back({ZERO_STR,ZERO_CODE});
-	registers.push_back({RA_STR,RA_CODE});
-
-	// First register
-	if(words.size()>=3)
-		for(auto reg : registers)
-			if(words[1] == reg.first)
-			{
-				rt = reg.second;
-				if(words.size()==3)
-					rs = reg.second;
-			}
-
-	// Second register
-	if(words.size()==4)
-		for(auto reg : registers)
-			if(words[2] == reg.first)
-			{
-				rs = reg.second;
-			}
-}
-
-void Parser::getConstant(string line, int &value, bool &isNumber)
+void Parser::getConstant(string line, int &value)
 {
 	vector<string> words = splitLine(line);
 	string lastWord = words.back();
@@ -177,22 +183,55 @@ void Parser::getConstant(string line, int &value, bool &isNumber)
 	// Char
 	if(lastWord[0]=='\'')
 	{
-		value = lastWord[1];	
-		isNumber = true;
+		if(lastWord=="\'")
+			value = ' ';
+		else
+			value = lastWord[1];	
+
 		return;
 	}
 	
-	// String
-	if(lastWord[0]=='\"')
+	// Defined
+	if(lastWord[0]<'0'||lastWord[0]>'9')
 	{
-		value = 0;
-		isNumber = false;
+		Define define = shared->getDefine(lastWord);
+		value = define.memoryPos;
 		return;
 	}
 
 	// Integer
 	value = stoi(lastWord);
-	isNumber = true;
+}
+
+void Parser::getJumpArguments(string line, Register &rs1, Register &rs2, Label &label)
+{
+	vector<string> words = splitLine(line);
+
+	rs1 = {"",NO_CODE,"00000"};
+	rs2 = {"",NO_CODE,"00000"};
+	Label rlabel = {"",-1};
+
+	if(words.size()==1)
+	{
+		return;
+	}
+	else if(words.size()==2)
+	{
+		label = shared->getLabel(words[1]);
+		return;
+	}
+	else if(words.size()==3)
+	{
+		label = shared->getLabel(words[2]);
+		rs1 = shared->getRegister(words[1]);
+		rs2 = shared->getRegister(words[1]);
+	}
+	else if(words.size()==4)
+	{
+		label = shared->getLabel(words[3]);
+		rs1 = shared->getRegister(words[1]);
+		rs2 = shared->getRegister(words[2]);
+	}
 }
 
 vector<string> Parser::splitLine(string line)
@@ -219,6 +258,10 @@ vector<string> Parser::splitLine(string line)
         prev = pos + 1;
     }
     while (pos < line.length() && prev < line.length());
+	//cout<<endl<<words.size()<<" -> ";
+	//for(auto word : words)
+	//	cout<<word<<" ";
+	//cout<<endl;
 
 	return words;
 }
@@ -232,15 +275,45 @@ void Parser::trimWord(string &word)
 
 void Parser::removeComments(string &line)
 {
-	 size_t commentPos = line.find(COMMENT_STR);
+	size_t commentPos = line.find(COMMENT_STR);
+	size_t stringPos = line.find('"');
+	string lineAux = line;
 
-	 if(commentPos != string::npos && commentPos<line.length())
-	 {
-		line = line.substr(0, commentPos);
-	 }
+	// Remove comments inside strings
+	if(commentPos != string::npos && stringPos != string::npos &&
+		commentPos<line.length() && stringPos<line.length() &&
+		stringPos<commentPos)
+	{
+		for(int i=0;i<lineAux.length();i++)
+			if(lineAux[i]=='"')
+			{
+				lineAux[i]=' ';
+				break;
+			}
+		stringPos = lineAux.find('"');
+		string nextString = line.substr(stringPos+1,line.length()-(stringPos+1));
+		commentPos = nextString.find(COMMENT_STR);
+	 	if(commentPos != string::npos && commentPos<line.length())
+			commentPos+=stringPos+1;
+	}
+
+	// Check comment found
+	if(commentPos != string::npos && commentPos<line.length())
+	{
+	   line = line.substr(0, commentPos);
+	}
 }
 
 bool Parser::isLabel(string line)
 {
 	return line.back()==':';
 }
+
+bool Parser::isDefine(string line)
+{
+	vector<string> words = splitLine(line);
+	if(words.size()<2)
+		return false;
+	return words[1][0]=='.';
+}
+

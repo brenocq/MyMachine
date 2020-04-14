@@ -32,6 +32,12 @@ struct Constant{
 	int value;
 };
 
+struct Define{
+	string name;
+	int memoryPos;
+};
+
+
 class Shared
 {
 public:
@@ -43,11 +49,15 @@ public:
 	static Command getCommandByOpCode(string opCode);
 	static Register getRegister(int code);
 	static Register getRegister(string str);
-	static Label getLabel(string name);
 	static Constant getConstant(string name);
+	static Label getLabel(string name);
+	static Define getDefine(string name);
+	static void insertLabel(Label label);
+	static void insertDefine(Define define);
 
 	static void getRegistersByBin(string lineBin, Register &rs1, Register &rs2, Register &rt);
 	static void getConstantByBin(string lineBin, Register &rs, Register &rt, int &constant, bool &isNumber);
+	static void getJumpByBin(string lineBin, Register &rs1, Register &rs2, int &jumpLine);
 private:
 	static void initCommands(void);
 	static void initRegisters(void);
@@ -63,5 +73,8 @@ private:
 
 	// Constants
 	static vector<Constant> constants;	
+
+	// Defines
+	static vector<Define> defines;	
 };
 #endif// SHARED_H

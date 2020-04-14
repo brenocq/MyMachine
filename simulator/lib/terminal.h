@@ -20,8 +20,9 @@ public:
 	void display(void);
 	void setWindow(WINDOW *_win);
 
-	void printint(int constant);
+	void printbool(bool constant);
 	void printchar(char constant);
+	void printint(int constant);
 	void printnl();
 private:
 	void cleanTerminal();

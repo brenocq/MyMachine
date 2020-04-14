@@ -21,6 +21,7 @@ public:
 	static void putColor(string name, int r, int g, int b);
 	static int getColor(string name);
 	static int getPair(string name);
+	static void getFgBg(int pairFgBg, int &fg, int &bg);
 	static void updatePairs(void);
 
 private:

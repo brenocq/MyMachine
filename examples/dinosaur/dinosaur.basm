@@ -1,0 +1,31 @@
+.define
+	maxX .int 150
+	maxY .int 40
+	dino0 .string "               __ "
+	dino1 .string "              / _)"
+	dino2 .string "     _.----._/ /  "
+	dino3 .string "    /         /   "
+	dino4 .string " __/ (  | (  |    "
+	dino5 .string "/__.-'|_|--|_|    "
+.code
+main:
+	loadc a0 dino0	
+	printstr
+	printnl
+	loadc a0 dino1
+	printstr
+	printnl
+	loadc a0 dino2	
+	printstr
+	printnl
+	loadc a0 dino3	
+	printstr
+	printnl
+	loadc a0 dino4	
+	printstr
+	printnl
+	loadc a0 dino5	
+	printstr
+	printnl
+
+	finish

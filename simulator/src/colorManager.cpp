@@ -80,3 +80,8 @@ int ColorManager::getPair(string name)
 	return textColorId*MAX_PAIRS+bgColorId;
 }
 
+void ColorManager::getFgBg(int pairFgBg, int &fg, int &bg)
+{
+	fg = pairFgBg/MAX_PAIRS;
+	bg = pairFgBg-fg*MAX_PAIRS;
+}

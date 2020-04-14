@@ -4,6 +4,7 @@ vector<Command> Shared::commands;
 vector<Register> Shared::registers;	
 vector<Label> Shared::labels;	
 vector<Constant> Shared::constants;	
+vector<Define> Shared::defines;	
 
 Shared::Shared()
 {
@@ -51,6 +52,8 @@ void Shared::initRegisters(void)
 	registers.push_back({PC_STR,PC_CODE,PC});
 	registers.push_back({RA_STR,RA_CODE,RA});
 	registers.push_back({ZERO_STR,ZERO_CODE,ZERO});
+	registers.push_back({TIME_STR,TIME_CODE,TIME});
+	registers.push_back({RAND_STR,RAND_CODE,RAND});
 }
 
 void Shared::initCommands(void)
@@ -58,7 +61,7 @@ void Shared::initCommands(void)
 	if(commands.size()>0)
 		return;
 
-	commands.push_back({DEFINES_STR, 	DEFINES_CODE,	"", ' '});
+	commands.push_back({DEFINE_STR, 	DEFINE_CODE,	"", ' '});
 	commands.push_back({CODE_STR, 		CODE_CODE,		"", ' '});
 	commands.push_back({BOOL_STR, 		BOOL_CODE, 		"", 'd'});
 	commands.push_back({CHAR_STR, 		CHAR_CODE, 		"", 'd'});
@@ -80,6 +83,8 @@ void Shared::initCommands(void)
 	commands.push_back({MULC_STR,		MULC_CODE,		MULC,	'c'});
 	commands.push_back({DIV_STR, 		DIV_CODE,		DIV,	'r'});
 	commands.push_back({DIVC_STR,		DIVC_CODE,		DIVC,	'c'});
+	commands.push_back({MOD_STR, 		MOD_CODE,		MOD,	'r'});
+	commands.push_back({MODC_STR,		MODC_CODE,		MODC,	'c'});
 
 	commands.push_back({AND_STR,		AND_CODE,		AND,	'r'});
 	commands.push_back({OR_STR, 		OR_CODE,		OR,		'r'});
@@ -87,7 +92,9 @@ void Shared::initCommands(void)
 	commands.push_back({NOT_STR,		NOT_CODE,		NOT,	'r'});
 
 	commands.push_back({SHIFT_LEFT_STR, SHIFT_LEFT_CODE,	SHIFTL, 'r'});
+	commands.push_back({SHIFT_LEFTC_STR, SHIFT_LEFTC_CODE,	SHIFTLC,'c'});
 	commands.push_back({SHIFT_RIGHT_STR,SHIFT_RIGHT_CODE,	SHIFTR,	'r'});
+	commands.push_back({SHIFT_RIGHTC_STR,SHIFT_RIGHTC_CODE,	SHIFTRC,'c'});
 
 	commands.push_back({J_STR,   		J_CODE,			J,		'j'});
 	commands.push_back({JEQ_STR, 		JEQ_CODE,		JEQ,	'j'});
@@ -99,10 +106,21 @@ void Shared::initCommands(void)
 	commands.push_back({JLT_STR, 		JLT_CODE,		JLT,	'j'});
     commands.push_back({JLE_STR, 		JLE_CODE,		JLE,	'j'});
 
+	commands.push_back({JL_STR,   		JL_CODE,		JL,		'j'});
+	commands.push_back({JEQL_STR, 		JEQL_CODE,		JEQL,	'j'});
+	commands.push_back({JNEL_STR, 		JNEL_CODE,		JNEL,	'j'});
+	commands.push_back({JEZL_STR, 		JEZL_CODE,		JEZL,	'j'});
+	commands.push_back({JNZL_STR, 		JNZL_CODE,		JNZL,	'j'});
+	commands.push_back({JGTL_STR, 		JGTL_CODE,		JGTL,	'j'});
+	commands.push_back({JGEL_STR, 		JGEL_CODE,		JGEL,	'j'});
+	commands.push_back({JLTL_STR, 		JLTL_CODE,		JLTL,	'j'});
+    commands.push_back({JLEL_STR, 		JLEL_CODE,		JLEL,	'j'});
+
 	commands.push_back({PUSH_STR, 		PUSH_CODE,		PUSH,	'r'});
 	commands.push_back({POP_STR, 		POP_CODE,		POP,	'r'});
 
-	commands.push_back({PRINTC_STR, 	PRINTC_CODE,	PRINTC,		't'});
+	commands.push_back({PRINTBOOL_STR, 	PRINTBOOL_CODE,	PRINTBOOL,	't'});
+	commands.push_back({PRINTCHAR_STR, 	PRINTCHAR_CODE,	PRINTCHAR,	't'});
     commands.push_back({PRINTINT_STR, 	PRINTINT_CODE,	PRINTINT,	't'});
 	commands.push_back({PRINTSTR_STR, 	PRINTSTR_CODE,	PRINTSTR,	't'});
     commands.push_back({PRINTNL_STR, 	PRINTNL_CODE,	PRINTNL,	't'});
@@ -110,6 +128,9 @@ void Shared::initCommands(void)
     commands.push_back({WRITE_STR, 		WRITE_CODE,		WRITE,		'w'});
 	commands.push_back({READ_STR, 		READ_CODE,		READ,		'w'});
     commands.push_back({INPUT_STR, 		INPUT_CODE,		INPUT,		'w'});
+
+	commands.push_back({FINISH_STR,		FINISH_CODE,	FINISH,		'j'});
+    commands.push_back({BREAKP_STR, 	BREAKP_CODE,	BREAKP,		'j'});
 }
 
 Command Shared::getCommand(int code)
@@ -184,6 +205,12 @@ Constant Shared::getConstant(string name)
 	return {"", -1};
 }
 
+void Shared::insertLabel(Label label)
+{
+	cout<<"insertLabel -> "<<label.name<<endl;
+	labels.push_back(label);
+}
+
 void Shared::getRegistersByBin(string lineBin, Register &rs1, Register &rs2, Register &rt)
 {
 	string rs1Bin = lineBin.substr(6,5);
@@ -223,4 +250,40 @@ void Shared::getConstantByBin(string lineBin, Register &rs, Register &rt, int &c
 
 	constant = stoi(constantBin, nullptr, 2);
 	isNumber = true;
+}
+
+void Shared::getJumpByBin(string lineBin, Register &rs1, Register &rs2, int &jumpLine)
+{
+	string rs1Bin = lineBin.substr(6,5);
+	string rs2Bin = lineBin.substr(11,5);
+	string jumpBin = lineBin.substr(16,16);
+
+	rs1 = {"", NO_CODE, ""};
+	rs2 = {"", NO_CODE, ""};
+
+	for(auto reg : registers)
+	{
+		if(rs1Bin == reg.binary)
+			rs1 = reg;
+		if(rs2Bin == reg.binary)
+			rs2 = reg;
+	}
+
+	jumpLine = stoi(jumpBin, nullptr, 2);
+}
+
+void Shared::insertDefine(Define define)
+{
+	cout<<"insertDefine -> "<<define.name<<endl;
+	defines.push_back(define);
+}
+
+Define Shared::getDefine(string name)
+{
+	for(auto define : defines)
+	{
+		if(define.name == name)
+			return define;
+	}
+	return {"", -1};
 }

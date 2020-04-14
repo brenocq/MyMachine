@@ -19,14 +19,22 @@ public:
 
 	void removeComments(string &line);
 	int getCode(string line);
-	void getDefine(string line, string &name, int &value);
-	void getRegisters(string line, int &rs1, int &rs2, int &rt);
-	void getRegisters(string line, int &rs, int &rt);
-	void getConstant(string line, int &value, bool &isNumber);
+	int getDefineCode(string line);
+	string getDefineName(string line);
+	string getLabelName(string line);
+	void getDefine(string line, string &str);
+	void getDefine(string line, int &integer);
+	void getDefine(string line, char &character);
+	void getDefine(string line, bool &boolean);
+	void getRegisters(string line, Register &rs1, Register &rs2, Register &rt);
+	void getRegisters(string line, Register &rs, Register &rt);
+	void getConstant(string line, int &value);
+	void getJumpArguments(string line, Register &rs1, Register &rs2, Label &label);
 private:
 	vector<string> splitLine(string line);
 	void trimWord(string &word);
 	bool isLabel(string line);
+	bool isDefine(string line);
 
 	Shared *shared;
 };

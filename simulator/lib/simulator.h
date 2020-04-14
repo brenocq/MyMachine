@@ -6,7 +6,10 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <stack>
 #include <curses.h>
+#include <ctime>// rand
+#include <chrono>
 #include "../../assembler/lib/defines.h"
 #include "../../assembler/lib/shared.h"
 #include "window.h"
@@ -16,6 +19,7 @@
 #include "colorManager.h"
 
 using namespace std;
+using namespace chrono;
 
 class Simulator
 {
@@ -57,10 +61,18 @@ private:
 	int maxX, maxY;
 
 	//--------------- Machine -------------//
+	bool close;
+	bool finished;
+	unsigned long startTime;
 	// Input file
 	ifstream in;
 	vector<string> lines;
 	// Registers
 	vector<int> registers;
+	// Memory
+	stack<int> memory;
+	// Mode (auto/manual) 
+	string mode;
+
 };
 #endif// SIMULATOR_H

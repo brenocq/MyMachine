@@ -1,0 +1,14 @@
+.define
+.code
+main:
+	-- Request input
+	input
+
+	-- Print input to terminal
+	move a0 v0
+	printint -- Print int
+	printnl -- Print new line
+
+	-- Infinity loop
+	j main
+	finish

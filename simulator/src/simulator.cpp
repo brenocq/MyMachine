@@ -4,6 +4,13 @@ Simulator::Simulator(string inName):
 	maxX(0), maxY(0)
 {
 	registers = vector<int>(32);
+	mode = "automatic";
+	close = false;
+	finished = false;
+	startTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+	// Init rand
+	srand(time(0));
 
 	// Initialize screen
 	initscr();
@@ -50,7 +57,32 @@ void Simulator::run(void)
 		window->display();
 		code->display();
 		terminal->display();
-		getch();
+
+		// Next command
+		if(mode=="manual" || finished == true)
+		{
+			int value = getch();
+			if(value==27)// ESQ
+				close = true;
+			if(value==9)// TAB
+			{
+				mode = mode=="manual"?"automatic":"manual";
+				topbar->display();
+			}
+		}
+		
+		// Check close
+		if(close)
+			break;
+		// Update random
+		registers[RAND_CODE]=rand()%65535;
+
+		// Update time (1=100ms)
+		unsigned long currTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+		registers[TIME_CODE]=int(currTime-startTime)/100;
+		if(registers[TIME_CODE]>65535)
+			registers[TIME_CODE]=0;
+
 		runCommand();
 	}
 }
@@ -76,7 +108,7 @@ void Simulator::createWindows()
 {
 	// Create windows (numLines, numCols, startY, startX) 
 	//TODO 10 is hardcoded (register string size)
-	int barHeight = QTY_REG*10/maxX+2;
+	int barHeight = QTY_REG*12/maxX+2;
 	int winHeight = 40;
 	int winWidth = 150;
 	int termHeight = maxY-barHeight-winHeight;
@@ -89,6 +121,7 @@ void Simulator::createWindows()
 	refresh();
 	topbar->setWindow(topbarWin);
 	topbar->setRegisters(&registers);
+	topbar->setMode(&mode);
 
 	window->setWindow(windowWin);
 	terminal->setWindow(terminalWin);
@@ -178,6 +211,9 @@ void Simulator::RInstruction(Command command, string line)
 		case DIV_CODE:
 			registers[rt.code] = registers[rs1.code] / registers[rs2.code];
 			break;
+		case MOD_CODE:
+			registers[rt.code] = registers[rs1.code] % registers[rs2.code];
+			break;
 		case AND_CODE:
 			registers[rt.code] = registers[rs1.code] && registers[rs2.code];
 			break;
@@ -191,12 +227,20 @@ void Simulator::RInstruction(Command command, string line)
 			registers[rt.code] = registers[rs1.code];
 			break;
 		case SHIFT_LEFT_CODE:
+			registers[rt.code] = registers[rs1.code]*2;
 			break;
 		case SHIFT_RIGHT_CODE:
+			registers[rt.code] = registers[rs1.code]/2;
 			break;
 		case PUSH_CODE:
+			memory.push(registers[rs1.code]);
 			break;
 		case POP_CODE:
+			if(memory.size()>0)
+			{
+				registers[rt.code] = memory.top();
+				memory.pop();
+			}
 			break;
 	}
 }
@@ -208,29 +252,160 @@ void Simulator::CInstruction(Command command, string line)
 	bool isNumber;
 	shared->getConstantByBin(line, rs, rt, constant, isNumber);
 
+	int factor;
 	switch(command.code)
 	{
 		case LOADC_CODE:
-			registers[rt.code] = constant; 
+			if(isNumber)
+				registers[rt.code] = constant; 
 			break;
 		case ADDC_CODE:
-			registers[rt.code] = registers[rs.code]+constant;
+			if(isNumber)
+				registers[rt.code] = registers[rs.code]+constant;
 			break;
 		case SUBC_CODE:
-			registers[rt.code] = registers[rs.code]-constant;
+			if(isNumber)
+				registers[rt.code] = registers[rs.code]-constant;
 			break;
 		case MULC_CODE:
-			registers[rt.code] = registers[rs.code]*constant;
+			if(isNumber)
+				registers[rt.code] = registers[rs.code]*constant;
 			break;
 		case DIVC_CODE:
-			registers[rt.code] = registers[rs.code]/constant;
+			if(isNumber)
+				registers[rt.code] = registers[rs.code]/constant;
+			break;
+		case MODC_CODE:
+			if(isNumber)
+				registers[rt.code] = registers[rs.code]%constant;
+			break;
+		case SHIFT_LEFTC_CODE:
+			if(isNumber)
+			{
+				factor=1;
+				while(constant--)factor*=2;
+				registers[rt.code] = registers[rs.code]*factor;
+			}
+			break;
+		case SHIFT_RIGHTC_CODE:
+			if(isNumber)
+			{
+				factor=1;
+				while(constant--)factor*=2;
+				registers[rt.code] = registers[rs.code]/factor;
+			}
 			break;
 	}
 }
 
 void Simulator::JInstruction(Command command, string line)
 {
+	Register rs1, rs2;
+	int jumpLine;
+	shared->getJumpByBin(line, rs1, rs2, jumpLine);
 
+	switch(command.code)
+	{
+		case J_CODE:
+			registers[PC_CODE] = jumpLine-1;
+			break;
+		case JEQ_CODE:
+			if(registers[rs1.code]==registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JNE_CODE:
+			if(registers[rs1.code]!=registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JEZ_CODE:
+			if(registers[rs1.code]==0)
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JNZ_CODE:
+			if(registers[rs1.code]!=0)
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JGT_CODE:
+			if(registers[rs1.code]>registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JGE_CODE:
+			if(registers[rs1.code]>=registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JLT_CODE:
+			if(registers[rs1.code]<registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JLE_CODE:
+			if(registers[rs1.code]<=registers[rs2.code])
+				registers[PC_CODE] = jumpLine-1;
+			break;
+		case JL_CODE:
+			registers[RA_CODE] = registers[PC_CODE]+1;
+			registers[PC_CODE] = jumpLine-1;
+			break;
+		case JEQL_CODE:
+			if(registers[rs1.code]==registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JNEL_CODE:
+			if(registers[rs1.code]!=registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JEZL_CODE:
+			if(registers[rs1.code]==0)
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JNZL_CODE:
+			if(registers[rs1.code]!=0)
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JGTL_CODE:
+			if(registers[rs1.code]>registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JGEL_CODE:
+			if(registers[rs1.code]>=registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JLTL_CODE:
+			if(registers[rs1.code]<registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case JLEL_CODE:
+			if(registers[rs1.code]<=registers[rs2.code])
+			{
+				registers[RA_CODE] = registers[PC_CODE]+1;
+				registers[PC_CODE] = jumpLine-1;
+			}
+			break;
+		case FINISH_CODE:
+			finished = true;
+			registers[PC_CODE]--;
+			break;
+	}
 }
 
 void Simulator::TInstruction(Command command, string line)
@@ -238,6 +413,14 @@ void Simulator::TInstruction(Command command, string line)
 	int constant = 0;
 	switch(command.code)
 	{
+		case PRINTBOOL_CODE:
+			constant = registers[A0_CODE];
+			terminal->printbool((bool)constant);
+			break;
+		case PRINTCHAR_CODE:
+			constant = registers[A0_CODE];
+			terminal->printchar((char)constant);
+			break;
 		case PRINTINT_CODE:
 			constant = registers[A0_CODE];
 			terminal->printint(constant);
@@ -250,10 +433,10 @@ void Simulator::TInstruction(Command command, string line)
 
 void Simulator::WInstruction(Command command, string line)
 {
+	int pos, ch, fg, bg, input;
 	switch(command.code)
 	{
 		case WRITE_CODE:
-			int ch, pos, fg, bg;
 			pos = registers[A0_CODE];
 			ch = registers[A1_CODE];
 			fg = registers[A2_CODE];
@@ -261,8 +444,23 @@ void Simulator::WInstruction(Command command, string line)
 			window->write(pos, ch, fg, bg);
 			break;
 		case READ_CODE:
+			pos = registers[A0_CODE];
+			window->read(pos, ch, fg, bg);
+			registers[V0_CODE] = ch;
+			registers[V1_CODE] = fg;
+			registers[V2_CODE] = bg;
 			break;
 		case INPUT_CODE:
+			input = getch();
+			if(input==27)// ESQ
+				close = true;
+			if(input==9)// TAB
+			{
+				mode = mode=="manual"?"automatic":"manual";
+				topbar->display();
+			}
+
+			registers[V0_CODE] = input;
 			break;
 	}
 }

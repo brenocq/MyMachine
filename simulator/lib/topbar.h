@@ -22,10 +22,13 @@ public:
 	void display(void);
 	void setWindow(WINDOW *_win);
 	void setRegisters(vector<int> *_registers);
+	void setMode(string *_mode);
 private:
+	void cleanTopBar();
 	WINDOW *win;
 	int maxX, maxY;
 	vector<int> *registers;
+	string *mode;
 
 	Shared *shared;
 	ColorManager *cm;

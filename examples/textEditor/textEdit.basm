@@ -1,0 +1,65 @@
+.define
+
+.code
+-- Window: 150x40
+main:
+	input
+
+	loadc s1 127 -- Backspace
+	loadc s2 10 -- Enter
+
+	jeq v0 s1 backspace
+	jeq v0 s2 enter
+	j printletter
+
+	finish
+
+printletter:
+	move a0 s0
+	move a1 v0
+	loadc a2 'g'
+	loadc a3 'k'
+	write
+
+	addc s0 1
+	-- Check next line 
+	modc t0 s0 150 --t0=posX
+	divc t1 s0 150 --t1=posY
+	jnz t0 notNewLine -- Go to last line if posX=0
+		subc s0 1
+		push s0 --Add position to stack
+		addc s0 1
+	notNewLine:
+	j main
+
+
+backspace:
+	-- Get line start
+	modc t0 s0 150 --t0=posX
+	divc t1 s0 150 --t1=posY
+	jez t0 backspaceStart -- Go to last line if posX=0
+		subc s0 1
+		j backspaceErase
+	backspaceStart:
+	pop s0
+	backspaceErase:
+	move  a0 s0
+	loadc a1 ' '
+	loadc a2 'w'
+	loadc a3 'k'
+	write
+
+	j main
+
+enter:
+	-- Go to next line
+	divc t0 s0 150 -- Get y
+	addc t0 1
+	mulc t0 150
+
+	push s0 --Add position to stack
+	
+	move s0 t0
+
+	j main
+

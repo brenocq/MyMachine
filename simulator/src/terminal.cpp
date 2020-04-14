@@ -50,12 +50,15 @@ void Terminal::setWindow(WINDOW* _win)
 	getmaxyx(win, maxY, maxX);
 }
 
-void Terminal::printint(int constant)
+void Terminal::printbool(bool constant)
 {
+	string boolean = "F";
+	if(constant)
+		boolean = "T";
 	if(buffer.size()==0)
-		buffer.push_back(to_string(constant));
+		buffer.push_back(boolean);
 	else
-		buffer.back()+=to_string(constant);
+		buffer.back()+=boolean;
 
 	if(int(buffer.size())>maxY-1)
 		buffer.pop_front();
@@ -67,6 +70,18 @@ void Terminal::printchar(char constant)
 		buffer.push_back(to_string(constant));
 	else
 		buffer.back()+=constant;
+
+	if(int(buffer.size())>maxY-1)
+		buffer.pop_front();
+}
+
+
+void Terminal::printint(int constant)
+{
+	if(buffer.size()==0)
+		buffer.push_back(to_string(constant));
+	else
+		buffer.back()+=to_string(constant);
 
 	if(int(buffer.size())>maxY-1)
 		buffer.pop_front();

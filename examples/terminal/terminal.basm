@@ -1,0 +1,38 @@
+.define
+.code
+main:
+	loadc t0 2020 -- t0=2020
+	loadc t1 '/'  -- t1='/'
+	loadc t2 13 -- t2=13
+	loadc t3 4  -- t3=4
+
+	loadc t4 0 -- bool false
+	loadc t5 1 -- bool true
+
+	--------- Print to terminal: 4/13/2020\n ---------
+	move a0 t3
+	printint -- Print int
+
+	move a0 t1
+	printchar -- Print char
+
+	move a0 t2
+	printint
+
+	move a0 t1
+	printchar
+
+	move a0 t0
+	printint
+	printnl -- Print new line
+
+	------------ Print to terminal: F\nT ----------
+	move a0 t4
+	printbool -- Print bool
+
+	printnl
+
+	move a0 t5
+	printbool
+
+	finish

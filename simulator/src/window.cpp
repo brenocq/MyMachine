@@ -129,3 +129,13 @@ void Window::write(int position, int character, int fgColor, int bgColor)
 	int pairFgBg = cm->getPair(fgStr+"-"+bgStr);
 	pixels[position] = {char(character), pairFgBg};
 }
+
+void Window::read(int position, int &character, int &fgColor, int &bgColor)
+{
+	Pixel pixel;
+	if(position<pixels.size())
+		pixel = pixels[position];
+
+	character = pixel.ch;
+	cm->getFgBg(pixel.pairFgBg, fgColor, bgColor);
+}
