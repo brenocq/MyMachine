@@ -35,6 +35,7 @@ struct Constant{
 struct Define{
 	string name;
 	int memoryPos;
+	int value;
 };
 
 

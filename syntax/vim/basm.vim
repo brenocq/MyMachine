@@ -28,6 +28,7 @@ syntax keyword basmRegister ra
 syntax keyword basmRegister pc
 syntax keyword basmRegister time
 syntax keyword basmRegister rand
+syntax keyword basmRegister input
 
 syntax keyword basmRegister t0
 syntax keyword basmRegister t1
@@ -91,6 +92,7 @@ syntax keyword basmInstructionJ jle
 
 " Jump Instructions
 syntax keyword basmInstructionJ jl
+syntax keyword basmInstructionJ jr
 syntax keyword basmInstructionJ jeql
 syntax keyword basmInstructionJ jnel
 syntax keyword basmInstructionJ jezl
@@ -123,9 +125,12 @@ syntax keyword basmInstructionT printstr
 syntax keyword basmInstructionT printnl
 
 " Window Instructions
-syntax keyword basmInstructionW write
+syntax keyword basmInstructionW writebool
+syntax keyword basmInstructionW writechar
+syntax keyword basmInstructionW writeint
+syntax keyword basmInstructionW writestr
 syntax keyword basmInstructionW read
-syntax keyword basmInstructionW input
+syntax keyword basmInstructionW inputw
 
 hi def link basmComment        Comment
 hi def link basmNumber         Number

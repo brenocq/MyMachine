@@ -14,7 +14,7 @@ Simulator::Simulator(string inName):
 
 	// Initialize screen
 	initscr();
-	raw();
+	//raw();
 	noecho();
 	checkTerminalSupport();
 
@@ -36,6 +36,7 @@ Simulator::Simulator(string inName):
 	in.open(inName);
 	processInputFile();
 	in.close();
+	initMemory();
 }
 
 Simulator::~Simulator()
@@ -58,9 +59,25 @@ void Simulator::run(void)
 		code->display();
 		terminal->display();
 
+		// Update input
+		timeout(0);
+		int value = getch();
+		if(value!=ERR)
+		{
+			if(value==27)// ESQ
+				close = true;
+			if(value==9)// TAB
+			{
+				mode = mode=="manual"?"automatic":"manual";
+				topbar->display();
+			}
+			registers[INPUT_REG_CODE]=value;
+		}
 		// Next command
+
 		if(mode=="manual" || finished == true)
 		{
+			timeout(-1);
 			int value = getch();
 			if(value==27)// ESQ
 				close = true;
@@ -69,20 +86,21 @@ void Simulator::run(void)
 				mode = mode=="manual"?"automatic":"manual";
 				topbar->display();
 			}
+			registers[INPUT_REG_CODE]=value;
 		}
 		
-		// Check close
-		if(close)
-			break;
 		// Update random
 		registers[RAND_CODE]=rand()%65535;
 
 		// Update time (1=100ms)
 		unsigned long currTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-		registers[TIME_CODE]=int(currTime-startTime)/100;
+		registers[TIME_CODE]=int(currTime-startTime)/150;
 		if(registers[TIME_CODE]>65535)
 			registers[TIME_CODE]=0;
 
+		// Check close
+		if(close)
+			break;
 		runCommand();
 	}
 }
@@ -115,7 +133,7 @@ void Simulator::createWindows()
 
 	WINDOW *topbarWin  = newwin(barHeight, maxX, 0, 0);
 	WINDOW *windowWin  = newwin(winHeight,winWidth,barHeight+1,0);
-	WINDOW *terminalWin  = newwin(termHeight, maxX, maxY-termHeight, 0);
+	WINDOW *terminalWin  = newwin(termHeight, maxX, maxY-termHeight+1, 0);
 	WINDOW *codeWin  = newwin(winHeight, maxX-winWidth, barHeight+1, winWidth);
 
 	refresh();
@@ -179,9 +197,22 @@ void Simulator::runCommand()
 	(*pc)++;
 }
 
+void Simulator::initMemory()
+{
+	for(auto lineBin : lines)
+	{
+		string opCode = lineBin.substr(0, 6);
+		Command command = shared->getCommandByOpCode(opCode);
+		if(command.code == PUSHD_CODE)
+		{
+			string number = lineBin.substr(16, 16);
+			memoryDef.push_back(stoi(number, nullptr, 2));
+		}
+	}
+}
+
 void Simulator::DInstruction(Command command, string line)
 {
-
 }
 
 void Simulator::RInstruction(Command command, string line)
@@ -401,6 +432,9 @@ void Simulator::JInstruction(Command command, string line)
 				registers[PC_CODE] = jumpLine-1;
 			}
 			break;
+		case JR_CODE:
+			registers[PC_CODE] = registers[RA_CODE]-1;
+			break;
 		case FINISH_CODE:
 			finished = true;
 			registers[PC_CODE]--;
@@ -410,7 +444,8 @@ void Simulator::JInstruction(Command command, string line)
 
 void Simulator::TInstruction(Command command, string line)
 {
-	int constant = 0;
+	int constant = 0, mempos=0;
+	char ch;
 	switch(command.code)
 	{
 		case PRINTBOOL_CODE:
@@ -425,6 +460,21 @@ void Simulator::TInstruction(Command command, string line)
 			constant = registers[A0_CODE];
 			terminal->printint(constant);
 			break;
+		case PRINTSTR_CODE:
+			mempos = registers[A0_CODE];
+			if(int(memoryDef.size())<=mempos+1)
+				break;
+
+			ch = memoryDef[mempos++];
+			while(ch!='\0')
+			{
+				terminal->printchar(ch);
+
+				if(int(memoryDef.size())<=mempos+1)
+					break;
+				ch = memoryDef[mempos++];
+			}
+			break;
 		case PRINTNL_CODE:
 			terminal->printnl();
 			break;
@@ -434,14 +484,53 @@ void Simulator::TInstruction(Command command, string line)
 void Simulator::WInstruction(Command command, string line)
 {
 	int pos, ch, fg, bg, input;
+	int mempos, writeCode;
 	switch(command.code)
 	{
 		case WRITE_CODE:
-			pos = registers[A0_CODE];
-			ch = registers[A1_CODE];
-			fg = registers[A2_CODE];
-			bg = registers[A3_CODE];
-			window->write(pos, ch, fg, bg);
+			writeCode = stoi(line.substr(30,2), nullptr, 2);
+			switch(writeCode)
+			{
+				case 0://bool
+					pos = registers[A0_CODE];
+					ch = registers[A1_CODE];
+					fg = registers[A2_CODE];
+					bg = registers[A3_CODE];
+					window->writebool(pos, ch, fg, bg);
+					break;
+				case 1://char
+					pos = registers[A0_CODE];
+					ch = registers[A1_CODE];
+					fg = registers[A2_CODE];
+					bg = registers[A3_CODE];
+					window->writechar(pos, ch, fg, bg);
+					break;
+				case 2://int
+					pos = registers[A0_CODE];
+					ch = registers[A1_CODE];
+					fg = registers[A2_CODE];
+					bg = registers[A3_CODE];
+					window->writeint(pos, ch, fg, bg);
+					break;
+				case 3://str
+					pos = registers[A0_CODE];
+					mempos = registers[A1_CODE];
+					fg = registers[A2_CODE];
+					bg = registers[A3_CODE];
+					if(int(memoryDef.size())<=mempos+1)
+						break;
+
+					ch = memoryDef[mempos++];
+					while(ch!='\0')
+					{
+						window->writechar(pos++, ch, fg, bg);
+
+						if(int(memoryDef.size())<=mempos+1)
+							break;
+						ch = memoryDef[mempos++];
+					}
+					break;
+			}
 			break;
 		case READ_CODE:
 			pos = registers[A0_CODE];
@@ -451,6 +540,7 @@ void Simulator::WInstruction(Command command, string line)
 			registers[V2_CODE] = bg;
 			break;
 		case INPUT_CODE:
+			timeout(-1);
 			input = getch();
 			if(input==27)// ESQ
 				close = true;

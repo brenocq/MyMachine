@@ -3,29 +3,563 @@
 	maxY .int 40
 	dino0 .string "               __ "
 	dino1 .string "              / _)"
-	dino2 .string "     _.----._/ /  "
-	dino3 .string "    /         /   "
-	dino4 .string " __/ (  | (  |    "
-	dino5 .string "/__.-'|_|--|_|    "
+	dino2 .string "     _.----._/ /"
+	dino3 .string "    /         /"
+	dino4 .string " __/ (  | (  |"
+	dino5 .string "/__.-'|_|--|_|"
+	dinoBlank .string "                  "
+	blank .string "                                                                                                                                                      "
+
+	cactus0 .string "  _  _"
+	cactus1 .string " | || | _"
+	cactus2 .string "-| || || |"
+	cactus3 .string " | || || |-"
+	cactus4 .string "  \_  || |"
+	cactus5 .string "    |  _/"
+	cactus6 .string "   -| | \ "
+	cactus7 .string "    |_|-"
+	cactusBlank .string "           "
+
+	gameOver0 .string " ____ "
+	gameOver1 .string "|  __ \ "
+	gameOver2 .string "| |  \/ __ _ _ __ ___   ___    _____   _____ _ __" 
+	gameOver3 .string "| | __ / _` | '_ ` _ \ / _ \  / _ \ \ / / _ \ '__|"
+	gameOver4 .string "| |_\ \ (_| | | | | | |  __/ | (_) \ V /  __/ |"
+	gameOver5 .string " \____/\__,_|_| |_| |_|\___|  \___/ \_/ \___|_|" 
+
+	maxPos .int 30
+	minPos .int 15
+	posX .int 30
+	posCactusInit .int 139
+
+	points .string "Score:"
 .code
 main:
-	loadc a0 dino0	
-	printstr
-	printnl
-	loadc a0 dino1
-	printstr
-	printnl
-	loadc a0 dino2	
-	printstr
-	printnl
-	loadc a0 dino3	
-	printstr
-	printnl
-	loadc a0 dino4	
-	printstr
-	printnl
-	loadc a0 dino5	
-	printstr
+	-- s0: dino pos
+	loadc s0 maxX
+	mulc s0 maxPos
+	addc s0 posX
+	-- s1: cactus pos
+	loadc s1 maxX
+	mulc s1 maxPos
+	addc s1 posCactusInit
+	-- s2: startTimeJump
+	loadc s2 0
+	-- s3: lastTime
+	loadc s3 0
+	-- s4: startTimeCactus
+	loadc s4 0
+	-- s5: lastTimeCactus
+	loadc s5 0
+	-- s6: points
+	loadc s6 0
+	addc s6 0
+
+	loadc a0 '\0'
+	printint
 	printnl
 
+	jl cleanScreen
+	jl printDino
+	jl printCactus
+
+	mainLoop:
+		jl moveDino
+		jl moveCactus
+		jl checkCollision
+		jl printPoints
+
+	j mainLoop
+	mainEndLoop:
+	jl gameOver
 	finish
+
+moveDino:
+	push t0
+	push t1
+	push t2
+	push t3
+	push t4
+	push ra
+
+	jnz s2 moveDinoJumping
+	loadc t2 'w'
+
+	jne input t2 moveDinoEnd
+		loadc input 0
+		move s2 time
+		jeq s2 s3 moveDinoEnd
+		move s3 s2
+		moveDinoJumping:
+		-- t0=jumpTime
+		loadc t0 15
+		-- t2=currTime
+		move t2 time
+		sub t2 t2 s2
+
+		moveDinoSwitch:
+			jl cleanDino
+			loadc s0 maxPos
+
+			loadc t3 0
+			jeq t2 t3 moveDinoSwitch0
+			loadc t3 1
+			jeq t2 t3 moveDinoSwitch1
+			loadc t3 2
+			jeq t2 t3 moveDinoSwitch2
+			loadc t3 3
+			jeq t2 t3 moveDinoSwitch3
+			loadc t3 4
+			jeq t2 t3 moveDinoSwitch4
+			loadc t3 5
+			jeq t2 t3 moveDinoSwitch5
+			loadc t3 6
+			jeq t2 t3 moveDinoSwitch6
+			loadc t3 7
+			jeq t2 t3 moveDinoSwitch7
+			loadc t3 8
+			jeq t2 t3 moveDinoSwitch8
+			loadc t3 9
+			jeq t2 t3 moveDinoSwitch9
+			loadc t3 10
+			jeq t2 t3 moveDinoSwitch10
+			loadc t3 11
+			jeq t2 t3 moveDinoSwitch11
+			loadc t3 12
+			jeq t2 t3 moveDinoSwitch12
+			loadc t3 13
+			jeq t2 t3 moveDinoSwitch13
+			loadc t3 14
+			jeq t2 t3 moveDinoSwitch14
+
+			j moveDinoEndSwitch
+	
+			moveDinoSwitch0:
+				j moveDinoEndSwitch
+			moveDinoSwitch1:
+				subc s0 1
+				j moveDinoEndSwitch
+			moveDinoSwitch2:
+				subc s0 4
+				j moveDinoEndSwitch
+			moveDinoSwitch3:
+				subc s0 7
+				j moveDinoEndSwitch
+			moveDinoSwitch4:
+				subc s0 9
+				j moveDinoEndSwitch
+			moveDinoSwitch5:
+				subc s0 13
+				j moveDinoEndSwitch
+			moveDinoSwitch6:
+				subc s0 15
+				j moveDinoEndSwitch
+			moveDinoSwitch7:
+				subc s0 16
+				j moveDinoEndSwitch
+			moveDinoSwitch8:
+				subc s0 15
+				j moveDinoEndSwitch
+			moveDinoSwitch9:
+				subc s0 13
+				j moveDinoEndSwitch
+			moveDinoSwitch10:
+				subc s0 9
+				j moveDinoEndSwitch
+			moveDinoSwitch11:
+				subc s0 7
+				j moveDinoEndSwitch
+			moveDinoSwitch12:
+				subc s0 4
+				j moveDinoEndSwitch
+			moveDinoSwitch13:
+				subc s0 1
+				j moveDinoEndSwitch
+			moveDinoSwitch14:
+				j moveDinoEndSwitch
+		moveDinoEndSwitch:
+		mulc s0 maxX
+		addc s0 posX
+
+		jl printDino
+
+		-- Stop jumping
+		jle t2 t0 moveDinoEnd
+			-- Reset position
+			loadc s2 0
+			loadc s0 maxPos
+			mulc s0 s0 maxX
+			addc s0 s0 posX
+	moveDinoEnd:
+
+	pop ra
+	pop t4
+	pop t3
+	pop t2
+	pop t1
+	pop t0
+	jr
+
+
+printDino:
+	push t0
+
+	move t0 s0
+
+	-- set color
+	loadc a2 'k'	
+	loadc a3 'w'	
+
+	-- print dino
+	move a0 t0	
+	loadc a1 dino0	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 dino1	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 dino2	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 dino3	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 dino4	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 dino5	
+	writestr
+
+	pop t0
+	jr	
+
+cleanDino:
+	push t0
+	push t1
+
+	-- init t0=dinoPos
+	move t0 s0
+	-- t1=dinoHeight
+	loadc t1 6
+	
+	loadc a1 dinoBlank
+	loadc a2 'w'	
+	loadc a3 'w'	
+	cleanDinoWhile:
+		-- height=-1 
+		subc t1 1
+		-- pixel[pos]=white
+		move a0 t0
+		addc t0 maxX
+		writestr
+	jnz t1 cleanDinoWhile
+
+	pop t1
+	pop t0
+	jr
+
+cleanScreen:
+	push t0
+
+	-- init t0=maxPos
+	loadc t0 maxX
+	mulc t0 maxY
+	addc t0 maxX
+	
+	loadc a1 blank
+	loadc a2 'w'	
+	loadc a3 'w'	
+	cleanScreenWhile:
+		-- pos=pos-1
+		subc t0 maxX
+		-- pixel[pos]=white
+		move a0 t0	
+		writestr
+	jnz t0 cleanScreenWhile
+
+	pop t0
+	jr
+
+moveCactus:
+	push t0
+	push t1
+	push t2
+	push t3
+	push t4
+	push ra
+
+	jeq s5 time moveCactusEnd
+	move s5 time
+
+	j moveCactusMoving
+	moveCactusReset:
+		loadc s4 0
+		addc s6 100
+	moveCactusMoving:
+	jnz s4 moveCactusNotReset-- If==0
+		move s4 time
+	moveCactusNotReset:
+	-- t1=curr time
+	move t1 time
+	sub t1 t1 s4
+	mulc t1 6
+
+	jl cleanCactus
+	loadc s1 maxX
+	mulc s1 maxPos
+	addc s1 posCactusInit
+	sub s1 s1 t1
+	
+	-- t0=pos x
+	move t0 s1
+	modc t0 maxX
+
+	loadc t1 7
+	jle t0 t1 moveCactusReset
+
+	jl printCactus
+	
+
+	moveCactusEnd:
+	pop ra
+	pop t4
+	pop t3
+	pop t2
+	pop t1
+	pop t0
+	jr
+
+printCactus:
+	push t0
+
+	move t0 s1
+
+	-- set color
+	loadc a2 'G'	
+	loadc a3 'w'	
+
+	-- print cactus
+	move a0 t0	
+	loadc a1 cactus0
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus1
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus2	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus3	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus4	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus5
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus6
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 cactus7
+	writestr
+
+	pop t0
+	jr	
+
+ 
+cleanCactus:
+	push t0
+	push t1
+
+	-- init t0=cactusPos
+	move t0 s1
+	-- t1=cactusHeight
+	loadc t1 8
+	
+	loadc a1 dinoBlank
+	loadc a2 'w'	
+	loadc a3 'w'	
+	cleanDinoWhile:
+		-- height=-1 
+		subc t1 1
+		-- pixel[pos]=white
+		move a0 t0
+		addc t0 maxX
+		writestr
+	jnz t1 cleanDinoWhile
+
+	pop t1
+	pop t0
+	jr
+
+printPoints:
+	push t0
+	push t1
+	push t2
+
+	
+	loadc a0 135
+	loadc a1 points
+	loadc a2 'r'	
+	loadc a3 'w'	
+	writestr
+
+	loadc a0 143
+	move a1 s6
+	loadc a2 'r'	
+	loadc a3 'w'	
+	writeint
+
+	pop t2
+	pop t1
+	pop t0
+	jr
+
+checkCollision:
+	push t0 -- Dino x
+	push t1 -- Dino y
+	push t2 -- Cactus x
+	push t3 -- Cactus y
+	push t4
+	push t5
+	-- dino pos: s0
+	-- cactus pos: s1
+
+	move t0 s0
+	modc t0 t0 maxX
+	move t1 s0
+	divc t1 t1 maxX
+
+	move t2 s1
+	modc t2 t2 maxX
+	move t3 s1
+	divc t3 t3 maxX
+	
+	jge t2 t0 checkCollisionDinoLeft
+	-- Dino left (cactusX<dinoX)
+		move t4 t0
+		sub t4 t4 t2
+			
+		loadc t5 11 --cactus width
+		jgt t4 t5 checkCollisionEnd
+		-- Check collision Y
+		move t4 t3
+		sub t4 t4 t1
+
+		move a0 t4
+		printint
+		printnl
+
+		loadc t5 5 --dino height
+		jgt t4 t5 checkCollisionEnd
+		j mainEndLoop
+		
+	checkCollisionDinoLeft:
+	-- Dino right (cactusX>=dinoX)
+		-- Check collision X
+		move t4 t2
+		sub t4 t4 t0
+
+		loadc t5 18 --dino width
+		jgt t4 t5 checkCollisionEnd
+		-- Check collision Y
+		move t4 t3
+		sub t4 t4 t1
+
+		move a0 t4
+		printint
+		printnl
+
+		loadc t5 5 --dino height
+		jgt t4 t5 checkCollisionEnd
+
+		loadc a0 'f'
+		printchar
+		printnl
+
+		j mainEndLoop
+
+	checkCollisionEnd:
+	pop t5
+	pop t4
+	pop t3
+	pop t2
+	pop t1
+	pop t0
+	jr
+
+gameOver:
+	jl printGameOver
+	jl printDino
+	jl printCactus
+	jr
+
+printGameOver:
+	push t0
+
+	loadc t0 10
+	mulc t0 maxX
+	addc t0 t0 45
+
+	-- set color
+	loadc a2 'r'	
+	loadc a3 'w'	
+
+	-- print cactus
+	move a0 t0	
+	loadc a1 gameOver0
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 gameOver1
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 gameOver2	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 gameOver3	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 gameOver4	
+	writestr
+
+	addc t0 maxX
+	move a0 t0	
+	loadc a1 gameOver5
+	writestr
+
+	pop t0
+	jr	
+

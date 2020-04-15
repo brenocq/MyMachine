@@ -24,9 +24,12 @@ public:
 
 	void display(void);
 	void setWindow(WINDOW *_win);
-	void write(int position, int character, int fgColor, int bgColor);
+	void writebool(int position, int character, int fgColor, int bgColor);
+	void writechar(int position, int character, int fgColor, int bgColor);
+	void writeint(int position, int character, int fgColor, int bgColor);
 	void read(int position, int &character, int &fgColor, int &bgColor);
 private:
+	string getColor(int color);
 	vector<Pixel> pixels;
 
 	WINDOW *win;

@@ -24,6 +24,9 @@ int Parser::getCode(string line)
 	if(isDefine(line))
 		return DEFINE_CODE;
 
+	if(isWrite(line))
+		return WRITE_CODE;
+
 	Command command = shared->getCommand(words[0]);
 
 	if(command.code == NO_CODE)
@@ -47,6 +50,25 @@ int Parser::getDefineCode(string line)
 		return INT_CODE;
 	if(words[1]==STRING_STR)
 		return STRING_CODE;
+}
+
+int Parser::getWriteCode(string line)
+{
+	removeComments(line);
+	vector<string> words = splitLine(line);
+	if(words.size()<1)
+		return NO_CODE;
+	
+	if(words[0]==WRITEBOOL_STR)
+		return WRITEBOOL_CODE;
+	if(words[0]==WRITECHAR_STR)
+		return WRITECHAR_CODE;
+	if(words[0]==WRITEINT_STR)
+		return WRITEINT_CODE;
+	if(words[0]==WRITESTR_STR)
+		return WRITESTR_CODE;
+
+	return NO_CODE;
 }
 
 string Parser::getDefineName(string line)
@@ -195,7 +217,10 @@ void Parser::getConstant(string line, int &value)
 	if(lastWord[0]<'0'||lastWord[0]>'9')
 	{
 		Define define = shared->getDefine(lastWord);
-		value = define.memoryPos;
+		if(define.value==-1)
+			value = define.memoryPos;
+		else
+			value = define.value;
 		return;
 	}
 
@@ -317,3 +342,11 @@ bool Parser::isDefine(string line)
 	return words[1][0]=='.';
 }
 
+bool Parser::isWrite(string line)
+{
+	vector<string> words = splitLine(line);
+	if(words.size()<1)
+		return false;
+	
+	return words[0].substr(0,5)=="write";
+}

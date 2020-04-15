@@ -33,6 +33,7 @@ private:
 	void createWindows();
 	void defineBaseColors();
 	void defineBasePairs();
+	void initMemory();
 	void processInputFile();
 
 	void runCommand();
@@ -69,8 +70,9 @@ private:
 	vector<string> lines;
 	// Registers
 	vector<int> registers;
-	// Memory
+	// Memories
 	stack<int> memory;
+	vector<int> memoryDef;
 	// Mode (auto/manual) 
 	string mode;
 

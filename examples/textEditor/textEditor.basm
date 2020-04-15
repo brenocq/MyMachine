@@ -3,7 +3,7 @@
 .code
 -- Window: 150x40
 main:
-	input
+	inputw
 
 	loadc s1 127 -- Backspace
 	loadc s2 10 -- Enter
@@ -19,7 +19,7 @@ printletter:
 	move a1 v0
 	loadc a2 'g'
 	loadc a3 'k'
-	write
+	writechar
 
 	addc s0 1
 	-- Check next line 
@@ -47,7 +47,7 @@ backspace:
 	loadc a1 ' '
 	loadc a2 'w'
 	loadc a3 'k'
-	write
+	writechar
 
 	j main
 

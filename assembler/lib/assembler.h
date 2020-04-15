@@ -23,6 +23,7 @@ private:
 	void checkLabel(int code, string line);
 	void createLabels();
 	void createDefines();
+	void writeDefines();
 
 	string writeDInstruction(Command command, string line);
 	string writeRInstruction(Command command, string line);

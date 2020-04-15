@@ -54,6 +54,7 @@ void Shared::initRegisters(void)
 	registers.push_back({ZERO_STR,ZERO_CODE,ZERO});
 	registers.push_back({TIME_STR,TIME_CODE,TIME});
 	registers.push_back({RAND_STR,RAND_CODE,RAND});
+	registers.push_back({INPUT_REG_STR,INPUT_REG_CODE,INPUT_REG});
 }
 
 void Shared::initCommands(void)
@@ -67,6 +68,7 @@ void Shared::initCommands(void)
 	commands.push_back({CHAR_STR, 		CHAR_CODE, 		"", 'd'});
 	commands.push_back({INT_STR, 		INT_CODE, 		"", 'd'});
 	commands.push_back({STRING_STR, 	STRING_CODE, 	"", 'd'});
+	commands.push_back({"", 			PUSHD_CODE, 	PUSHD, 'd'});
 
 	commands.push_back({LOAD_STR, 		LOAD_CODE,		LOAD,	'r'});
 	commands.push_back({LOADC_STR, 		LOADC_CODE,		LOADC,	'c'});
@@ -107,6 +109,7 @@ void Shared::initCommands(void)
     commands.push_back({JLE_STR, 		JLE_CODE,		JLE,	'j'});
 
 	commands.push_back({JL_STR,   		JL_CODE,		JL,		'j'});
+	commands.push_back({JR_STR,   		JR_CODE,		JR,		'j'});
 	commands.push_back({JEQL_STR, 		JEQL_CODE,		JEQL,	'j'});
 	commands.push_back({JNEL_STR, 		JNEL_CODE,		JNEL,	'j'});
 	commands.push_back({JEZL_STR, 		JEZL_CODE,		JEZL,	'j'});
@@ -128,6 +131,10 @@ void Shared::initCommands(void)
     commands.push_back({WRITE_STR, 		WRITE_CODE,		WRITE,		'w'});
 	commands.push_back({READ_STR, 		READ_CODE,		READ,		'w'});
     commands.push_back({INPUT_STR, 		INPUT_CODE,		INPUT,		'w'});
+    commands.push_back({WRITEBOOL_STR, 	WRITEBOOL_CODE,	"",			'w'});
+    commands.push_back({WRITECHAR_STR,	WRITECHAR_CODE,	"",			'w'});
+    commands.push_back({WRITEINT_STR, 	WRITEINT_CODE,	"",			'w'});
+    commands.push_back({WRITESTR_STR, 	WRITESTR_CODE,	"",			'w'});
 
 	commands.push_back({FINISH_STR,		FINISH_CODE,	FINISH,		'j'});
     commands.push_back({BREAKP_STR, 	BREAKP_CODE,	BREAKP,		'j'});

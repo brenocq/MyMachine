@@ -20,6 +20,7 @@ public:
 	void removeComments(string &line);
 	int getCode(string line);
 	int getDefineCode(string line);
+	int getWriteCode(string line);
 	string getDefineName(string line);
 	string getLabelName(string line);
 	void getDefine(string line, string &str);
@@ -35,6 +36,7 @@ private:
 	void trimWord(string &word);
 	bool isLabel(string line);
 	bool isDefine(string line);
+	bool isWrite(string line);
 
 	Shared *shared;
 };

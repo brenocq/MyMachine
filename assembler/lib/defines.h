@@ -51,9 +51,11 @@
 #define JGEL_CODE               85
 #define JLTL_CODE               86
 #define JLEL_CODE               87
+#define JR_CODE               	88 
 
 #define PUSH_CODE               90
 #define POP_CODE                91
+#define PUSHD_CODE              92
 
 #define PRINTBOOL_CODE          100
 #define PRINTCHAR_CODE          101
@@ -64,6 +66,10 @@
 #define WRITE_CODE				150
 #define READ_CODE				151
 #define INPUT_CODE				152
+#define WRITEINT_CODE			153
+#define WRITEBOOL_CODE			154
+#define WRITECHAR_CODE			155
+#define WRITESTR_CODE			156
 
 #define DEFINE_CODE				200		
 #define CODE_CODE				201
@@ -78,7 +84,7 @@
 #define BREAKP_CODE				221
 
 //-- REGISTER CODES --//
-#define QTY_REG					29
+#define QTY_REG					30
 
 #define T0_CODE					0
 #define T1_CODE 				1
@@ -113,6 +119,7 @@
 #define ZERO_CODE				26
 #define TIME_CODE				27
 #define RAND_CODE				28
+#define INPUT_REG_CODE			29
 
 //------------------------------------------------// 
 //---------- Assembly op codes (binary) ----------// 
@@ -190,6 +197,8 @@
 #define JGEL           	"000100"
 #define JLTL           	"000101"
 #define JLEL            "000110"
+//--    Jump return      --//
+#define JR 		        "100101"
 //-- Push define memory --//
 #define PUSHD           "000111"
 
@@ -232,6 +241,7 @@
 #define PC 				"11010"
 #define TIME 			"11011"
 #define RAND			"11100"
+#define INPUT_REG		"11101"
 #define NO_REG			"11111"
 
 //---------------------------------------------//
@@ -312,6 +322,9 @@
 #define JLTL_STR                 "jltl"
 #define JLEL_STR                 "jlel"
 
+//-- JUMP RETURN --//
+#define JR_STR                 "jr"
+
 //-- PUSH & POP --//
 #define PUSH_STR                "push"
 #define POP_STR                 "pop"
@@ -326,7 +339,11 @@
 //-- WINDOW --//
 #define WRITE_STR            	"write"
 #define READ_STR             	"read"
-#define INPUT_STR             	"input"
+#define INPUT_STR             	"inputw"
+#define WRITEINT_STR			"writeint"
+#define WRITEBOOL_STR			"writebool"
+#define WRITECHAR_STR			"writechar"
+#define WRITESTR_STR			"writestr"
 
 //-- CONTROL --//
 #define FINISH_STR            	"finish"
@@ -366,6 +383,7 @@
 #define PC_STR  				"pc"
 #define TIME_STR  				"time"
 #define RAND_STR  				"rand"
+#define INPUT_REG_STR			"input"
 
 /*  Modelo de memoria
 

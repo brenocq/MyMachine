@@ -23,6 +23,7 @@ void ColorManager::init(void)
 	putColor("white", 1000, 1000, 1000);
 	putColor("red", 1000, 0, 0);
 	putColor("green", 600, 1000, 300);
+	putColor("dgreen", 200, 7000, 200);
 	putColor("blue", 0, 0, 1000);
 	putColor("cyan", 0, 1000, 1000);
 	putColor("pink", 1000, 500, 800);

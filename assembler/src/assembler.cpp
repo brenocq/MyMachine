@@ -74,14 +74,18 @@ void Assembler::run(void)
 			}
 
 			// Print binary
-			int i=(50-line.length());
-			while(i--)
-				cout<<" ";
+			if(line.size()<50)
+			{
+				int i=(50-line.length());
+				while(i--)
+					cout<<" ";
+			}
 
 			cout<<response<<endl;
 		}
 	}
 	in.close();
+	writeDefines();
 	out.close();
 }
 
@@ -90,7 +94,6 @@ void Assembler::createLabels()
 {
 	// TODO ignore inside .define
 	in.open(inName);
-	out.open(outName);
 
 	string line;
 	int lineNumber = 0;
@@ -124,14 +127,12 @@ void Assembler::createLabels()
 		}
 	}
 	in.close();
-	out.close();
 }
 
 void Assembler::createDefines()
 {
 	// TODO ignore inside .code
 	in.open(inName);
-	out.open(outName);
 
 	string line;
 	int memoryNumber = 0;
@@ -147,19 +148,25 @@ void Assembler::createDefines()
 			switch(defineCode)
 			{
 				case BOOL_CODE:
-					shared->insertDefine({defineName, memoryNumber});
+					bool b;
+					parser->getDefine(line, b);
+					shared->insertDefine({defineName, memoryNumber, (int)b});
 					memoryNumber++;
 					break;
 				case CHAR_CODE:
-					shared->insertDefine({defineName, memoryNumber});
+					char c;
+					parser->getDefine(line, c);
+					shared->insertDefine({defineName, memoryNumber, (int)c});
 					memoryNumber++;
 					break;
 				case INT_CODE:
-					shared->insertDefine({defineName, memoryNumber});
+					int i;
+					parser->getDefine(line, i);
+					shared->insertDefine({defineName, memoryNumber, i});
 					memoryNumber++;
 					break;
 				case STRING_CODE:
-					shared->insertDefine({defineName, memoryNumber});
+					shared->insertDefine({defineName, memoryNumber, -1});
 					string s;
 					parser->getDefine(line, s);
 					memoryNumber+=s.size()+1;
@@ -168,7 +175,63 @@ void Assembler::createDefines()
 		}
 	}
 	in.close();
-	out.close();
+}
+
+void Assembler::writeDefines()
+{
+	// TODO ignore inside .code
+	in.open(inName);
+
+	string line;
+	while(getline(in, line))
+	{
+		parser->removeComments(line);
+		int code = parser->getCode(line);
+
+		if(code==DEFINE_CODE)
+		{
+			int defineCode = parser->getDefineCode(line);
+			string defineName = parser->getDefineName(line);
+			string blank = "0000000000";
+			switch(defineCode)
+			{
+				case BOOL_CODE:
+					cout<<"(Bool) Insert "<<defineName<<" to memory"<<endl;
+
+					bool b;
+					parser->getDefine(line, b);
+					out<<PUSHD+blank+toBinary((int)b)+"\n";
+					break;
+				case CHAR_CODE:
+					cout<<"(Char) Insert "<<defineName<<" to memory"<<endl;
+
+					char c;
+					parser->getDefine(line, c);
+					out<<PUSHD+blank+toBinary((int)c)+"\n";
+					break;
+				case INT_CODE:
+					cout<<"(Int) Insert "<<defineName<<" to memory"<<endl;
+
+					int i;
+					parser->getDefine(line, i);
+					out<<PUSHD+blank+toBinary(i)+"\n";
+					break;
+				case STRING_CODE:
+					cout<<"(Str) Insert "<<defineName<<" to memory"<<endl;
+
+					string s;
+					parser->getDefine(line, s);
+
+					for(char c : s)
+						out<<PUSHD+blank+toBinary((int)c)+"\n";
+
+					out<<PUSHD+blank+toBinary((int)'\0')+"\n";
+
+					break;
+			}
+		}
+	}
+	in.close();
 }
 
 void Assembler::checkError(int code, string line)
@@ -274,9 +337,35 @@ string Assembler::writeTInstruction(Command command, string line)
 
 string Assembler::writeWInstruction(Command command, string line)
 {
-	out << command.binary + "00000000000000000000000000\n";
-	lineCounter++;
-	return "W -> " + command.binary + " 00000000000000000000000000";
+	if(command.code==READ_CODE || command.code==INPUT_CODE)
+	{
+		out << command.binary + "00000000000000000000000000\n";
+		lineCounter++;
+		return "W -> " + command.binary + " 00000000000000000000000000";
+	}
+	else if(command.code==WRITE_CODE)
+	{
+		int writeCommand = parser->getWriteCode(line);
+		switch(writeCommand)
+		{
+			case WRITEBOOL_CODE:
+				out << command.binary + "00000000000000000000000000\n";
+				lineCounter++;
+				return "W -> " + command.binary + " 00000000000000000000000000";
+			case WRITECHAR_CODE:
+				out << command.binary + "00000000000000000000000001\n";
+				lineCounter++;
+				return "W -> " + command.binary + " 00000000000000000000000001";
+			case WRITEINT_CODE:
+				out << command.binary + "00000000000000000000000010\n";
+				lineCounter++;
+				return "W -> " + command.binary + " 00000000000000000000000010";
+			case WRITESTR_CODE:
+				out << command.binary + "00000000000000000000000011\n";
+				lineCounter++;
+				return "W -> " + command.binary + " 00000000000000000000000011";
+		}
+	}
 }
 
 string Assembler::toBinary(int value)

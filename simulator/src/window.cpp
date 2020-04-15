@@ -56,84 +56,74 @@ void Window::setWindow(WINDOW* _win)
 	}
 }
 
-void Window::write(int position, int character, int fgColor, int bgColor)
+void Window::writebool(int position, int character, int fgColor, int bgColor)
 {
-	string fgStr = "";
-	string bgStr = "";
+	string fgStr = getColor(fgColor);
+	string bgStr = getColor(bgColor);
 
-	switch(fgColor)
-	{
-		case 'k':
-			fgStr="black";
-			break;
-		case 'r':
-			fgStr="red";
-			break;
-		case 'p':
-			fgStr="pink";
-			break;
-		case 'g':
-			fgStr="green";
-			break;
-		case 'y':
-			fgStr="yellow";
-			break;
-		case 'b':
-			fgStr="blue";
-			break;
-		case 'm':
-			fgStr="magenta";
-			break;
-		case 'c':
-			fgStr="cyan";
-			break;
-		case 'w':	
-			fgStr="white";
-			break;
-		default:
-			fgStr="white";
-	}
-	switch(bgColor)
-	{
-		case 'k':
-			bgStr="black";
-			break;
-		case 'r':
-			bgStr="red";
-			break;
-		case 'p':
-			bgStr="pink";
-			break;
-		case 'g':
-			bgStr="green";
-			break;
-		case 'y':
-			bgStr="yellow";
-			break;
-		case 'b':
-			bgStr="blue";
-			break;
-		case 'm':
-			bgStr="magenta";
-			break;
-		case 'c':
-			bgStr="cyan";
-			break;
-		case 'w':	
-			bgStr="white";
-			break;
-		default:
-			fgStr="black";
-	}
+	int pairFgBg = cm->getPair(fgStr+"-"+bgStr);
+	if(character==false)
+		pixels[position] = {'F', pairFgBg};
+	else
+		pixels[position] = {'T', pairFgBg};
+
+}
+
+void Window::writechar(int position, int character, int fgColor, int bgColor)
+{
+	string fgStr = getColor(fgColor);
+	string bgStr = getColor(bgColor);
 
 	int pairFgBg = cm->getPair(fgStr+"-"+bgStr);
 	pixels[position] = {char(character), pairFgBg};
+
+}
+
+void Window::writeint(int position, int character, int fgColor, int bgColor)
+{
+	string fgStr = getColor(fgColor);
+	string bgStr = getColor(bgColor);
+	string integer = to_string(character);
+	int pairFgBg = cm->getPair(fgStr+"-"+bgStr);
+
+	for(auto ch : integer)
+		pixels[position++] = {ch, pairFgBg};
+}
+
+string Window::getColor(int color)
+{
+	switch(color)
+	{
+		case 'k':
+			return "black";
+		case 'r':
+			return "red";
+		case 'p':
+			return "pink";
+		case 'g':
+			return "green";
+		case 'G':
+			return "dgreen";
+		case 'y':
+			return "yellow";
+		case 'b':
+			return "blue";
+		case 'm':
+			return "magenta";
+		case 'c':
+			return "cyan";
+		case 'w':	
+			return "white";
+		default:
+			return "black";
+	}
+
 }
 
 void Window::read(int position, int &character, int &fgColor, int &bgColor)
 {
 	Pixel pixel;
-	if(position<pixels.size())
+	if(position<int(pixels.size()))
 		pixel = pixels[position];
 
 	character = pixel.ch;
